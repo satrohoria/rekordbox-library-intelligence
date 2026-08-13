@@ -1,8 +1,10 @@
 import argparse
 
-from .parser import parse_collection
 from .audit import audit_tracks, format_audit
 from .duplicates import find_duplicates
+from .parser import parse_collection
+from .playlists import generate_segment_playlists
+from .segments import segment_tracks
 
 
 def format_duplicates(duplicates) -> str:
@@ -58,6 +60,30 @@ def format_duplicates(duplicates) -> str:
     return "\n".join(lines)
 
 
+def format_segments(segments) -> str:
+    total = (
+        len(segments.core)
+        + len(segments.rotation)
+        + len(segments.discovery)
+        + len(segments.unassigned)
+    )
+
+    return "\n".join(
+        [
+            "Rekordbox Library Intelligence",
+            "=" * 32,
+            "Library Segmentation",
+            "",
+            f"CORE:       {len(segments.core)}",
+            f"ROTATION:   {len(segments.rotation)}",
+            f"DISCOVERY:  {len(segments.discovery)}",
+            f"UNASSIGNED: {len(segments.unassigned)}",
+            "",
+            f"Total tracks: {total}",
+        ]
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="rekordbox-intelligence",
@@ -91,6 +117,25 @@ def main():
     )
     duplicates_p.add_argument("xml")
 
+    # Segments
+    segments_p = sub.add_parser(
+        "segments",
+        help="Segment tracks into CORE, ROTATION and DISCOVERY.",
+    )
+    segments_p.add_argument("xml")
+
+    # Playlists
+    playlists_p = sub.add_parser(
+        "playlists",
+        help="Generate CORE, ROTATION and DISCOVERY M3U8 playlists.",
+    )
+    playlists_p.add_argument("xml")
+    playlists_p.add_argument(
+        "--output-dir",
+        default="output",
+        help="Directory where generated playlists will be saved.",
+    )
+
     args = parser.parse_args()
 
     tracks = parse_collection(args.xml)
@@ -100,6 +145,7 @@ def main():
             tracks,
             args.low_bitrate,
         )
+
         print(
             format_audit(
                 summary,
@@ -110,6 +156,33 @@ def main():
     elif args.command == "duplicates":
         duplicates = find_duplicates(tracks)
         print(format_duplicates(duplicates))
+
+    elif args.command == "segments":
+        segments = segment_tracks(tracks)
+        print(format_segments(segments))
+
+    elif args.command == "playlists":
+        segments = segment_tracks(tracks)
+
+        generated = generate_segment_playlists(
+            segments,
+            args.output_dir,
+        )
+
+        print("Rekordbox Library Intelligence")
+        print("=" * 32)
+        print("Generated playlists")
+        print("")
+
+        for name, (path, count) in generated.items():
+            print(
+                f"{name:10s} {count:4d} tracks -> {path}"
+            )
+
+        print("")
+        print(
+            "No Rekordbox database or audio files were modified."
+        )
 
 
 if __name__ == "__main__":
