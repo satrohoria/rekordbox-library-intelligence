@@ -1,0 +1,4 @@
+track_id,artist,title,location,confidence
+1001,Example Artist,Example Track,file://localhost/C:/Music/example_track.mp3,HIGH
+1002,Another Artist,Another Track,file://localhost/C:/Music/another_track.mp3,HIGH
+1003,Maybe Artist,Maybe Track,file://localhost/C:/Music/maybe_track.mp3,MEDIUM

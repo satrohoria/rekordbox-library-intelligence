@@ -2,6 +2,11 @@ import argparse
 
 from .audit import audit_tracks, format_audit
 from .duplicates import find_duplicates
+from .metadata import (
+    build_metadata_plan,
+    format_metadata_plan,
+    load_corrections,
+)
 from .parser import parse_collection
 from .playlists import generate_segment_playlists
 from .segments import segment_tracks
@@ -97,50 +102,114 @@ def main():
         required=True,
     )
 
-    # Audit
+    # ---------------------------------------------------------
+    # AUDIT
+    # ---------------------------------------------------------
     audit_p = sub.add_parser(
         "audit",
         help="Run a non-destructive library audit.",
     )
-    audit_p.add_argument("xml")
+
+    audit_p.add_argument(
+        "xml",
+        help="Rekordbox XML export.",
+    )
+
     audit_p.add_argument(
         "--low-bitrate",
         type=int,
         default=256,
         metavar="KBPS",
+        help="Bitrate threshold used by the audit.",
     )
 
-    # Duplicates
+    # ---------------------------------------------------------
+    # DUPLICATES
+    # ---------------------------------------------------------
     duplicates_p = sub.add_parser(
         "duplicates",
         help="Detect high-confidence duplicate tracks.",
     )
-    duplicates_p.add_argument("xml")
 
-    # Segments
+    duplicates_p.add_argument(
+        "xml",
+        help="Rekordbox XML export.",
+    )
+
+    # ---------------------------------------------------------
+    # SEGMENTS
+    # ---------------------------------------------------------
     segments_p = sub.add_parser(
         "segments",
         help="Segment tracks into CORE, ROTATION and DISCOVERY.",
     )
-    segments_p.add_argument("xml")
 
-    # Playlists
+    segments_p.add_argument(
+        "xml",
+        help="Rekordbox XML export.",
+    )
+
+    # ---------------------------------------------------------
+    # PLAYLISTS
+    # ---------------------------------------------------------
     playlists_p = sub.add_parser(
         "playlists",
         help="Generate CORE, ROTATION and DISCOVERY M3U8 playlists.",
     )
-    playlists_p.add_argument("xml")
+
+    playlists_p.add_argument(
+        "xml",
+        help="Rekordbox XML export.",
+    )
+
     playlists_p.add_argument(
         "--output-dir",
         default="output",
         help="Directory where generated playlists will be saved.",
     )
 
+    # ---------------------------------------------------------
+    # METADATA PREVIEW
+    # ---------------------------------------------------------
+    metadata_p = sub.add_parser(
+        "metadata-preview",
+        help=(
+            "Preview metadata corrections without modifying "
+            "audio files."
+        ),
+    )
+
+    metadata_p.add_argument(
+        "csv",
+        help="CSV file containing proposed metadata corrections.",
+    )
+
+    metadata_p.add_argument(
+        "--minimum-confidence",
+        choices=[
+            "HIGH",
+            "MEDIUM",
+            "LOW",
+        ],
+        default="HIGH",
+        help="Minimum confidence level to include.",
+    )
+
+    metadata_p.add_argument(
+        "--skip-file-check",
+        action="store_true",
+        help="Do not verify whether audio files exist.",
+    )
+
     args = parser.parse_args()
 
-    tracks = parse_collection(args.xml)
+    # ---------------------------------------------------------
+    # COMMAND EXECUTION
+    # ---------------------------------------------------------
 
     if args.command == "audit":
+        tracks = parse_collection(args.xml)
+
         summary = audit_tracks(
             tracks,
             args.low_bitrate,
@@ -154,14 +223,30 @@ def main():
         )
 
     elif args.command == "duplicates":
+        tracks = parse_collection(args.xml)
+
         duplicates = find_duplicates(tracks)
-        print(format_duplicates(duplicates))
+
+        print(
+            format_duplicates(
+                duplicates
+            )
+        )
 
     elif args.command == "segments":
+        tracks = parse_collection(args.xml)
+
         segments = segment_tracks(tracks)
-        print(format_segments(segments))
+
+        print(
+            format_segments(
+                segments
+            )
+        )
 
     elif args.command == "playlists":
+        tracks = parse_collection(args.xml)
+
         segments = segment_tracks(tracks)
 
         generated = generate_segment_playlists(
@@ -176,12 +261,30 @@ def main():
 
         for name, (path, count) in generated.items():
             print(
-                f"{name:10s} {count:4d} tracks -> {path}"
+                f"{name:10s} "
+                f"{count:4d} tracks -> {path}"
             )
 
         print("")
         print(
             "No Rekordbox database or audio files were modified."
+        )
+
+    elif args.command == "metadata-preview":
+        corrections = load_corrections(
+            args.csv,
+            minimum_confidence=args.minimum_confidence,
+        )
+
+        plan = build_metadata_plan(
+            corrections,
+            check_files=not args.skip_file_check,
+        )
+
+        print(
+            format_metadata_plan(
+                plan
+            )
         )
 
 
