@@ -37,5 +37,6 @@ master.backup.db
 output/*
 !output/.gitkeep
 
-# Public fictitious example
+# Public / fictitious example
 !examples/sample_collection.xml
+!examples/sample_duplicates.xml
