@@ -467,3 +467,27 @@ def test_cli_metadata_rollback_with_yes(
 
     assert safety_artist == "New Artist"
     assert safety_title == "New Title"
+def test_cli_analytics():
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "analytics",
+            str(SAMPLE_XML),
+            "--top",
+            "3",
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+    assert "DJ Library Analytics" in result.stdout
+    assert "Total tracks:" in result.stdout
+    assert "Library utilization:" in result.stdout
+    assert "TOP TRACKS" in result.stdout
+    assert "TOP ARTISTS" in result.stdout
+    assert "BPM DISTRIBUTION" in result.stdout
+    assert "RATING DISTRIBUTION" in result.stdout

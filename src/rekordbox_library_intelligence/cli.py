@@ -1,5 +1,10 @@
 import argparse
 
+from .analytics import (
+    calculate_library_analytics,
+    format_library_analytics,
+)
+
 from .audit import audit_tracks, format_audit
 from .duplicates import find_duplicates
 from .metadata import (
@@ -168,7 +173,23 @@ def main():
         default="output",
         help="Directory where generated playlists will be saved.",
     )
+    # ANALYTICS
+    analytics_p = sub.add_parser(
+        "analytics",
+        help="Analyze DJ library usage and statistics.",
+    )
 
+    analytics_p.add_argument(
+        "xml",
+        help="Rekordbox XML export.",
+    )
+
+    analytics_p.add_argument(
+        "--top",
+        type=int,
+        default=10,
+        help="Number of top tracks and artists to display.",
+    )
     # METADATA PREVIEW
     metadata_preview_p = sub.add_parser(
         "metadata-preview",
@@ -320,7 +341,23 @@ def main():
         print(
             "No Rekordbox database or audio files were modified."
         )
+    elif args.command == "analytics":
+        tracks = parse_collection(
+            args.xml
+        )
 
+        analytics = (
+            calculate_library_analytics(
+                tracks,
+                top_limit=args.top,
+            )
+        )
+
+        print(
+            format_library_analytics(
+                analytics
+            )
+        )
     elif args.command == "metadata-preview":
         corrections = load_corrections(
             args.csv,
