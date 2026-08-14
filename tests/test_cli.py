@@ -639,3 +639,73 @@ def test_cli_history_intelligence():
     assert "Transitions analyzed: 6" in result.stdout
     assert "Largest increase: 3.0" in result.stdout
     assert "Largest decrease: -4.0" in result.stdout
+def test_cli_history_report(tmp_path):
+    history_xml = (
+        PROJECT_ROOT
+        / "examples"
+        / "sample_history.xml"
+    )
+
+    output_dir = (
+        tmp_path
+        / "history_reports"
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "history-report",
+            str(history_xml),
+            "--output-dir",
+            str(output_dir),
+            "--top",
+            "3",
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+
+    assert (
+        "History Reports"
+        in result.stdout
+    )
+
+    assert (
+        "Sessions analyzed: 2"
+        in result.stdout
+    )
+
+    assert (
+        output_dir
+        / "history_summary.json"
+    ).exists()
+
+    assert (
+        output_dir
+        / "sessions.csv"
+    ).exists()
+
+    assert (
+        output_dir
+        / "repeated_tracks.csv"
+    ).exists()
+
+    assert (
+        output_dir
+        / "openers.csv"
+    ).exists()
+
+    assert (
+        output_dir
+        / "closers.csv"
+    ).exists()
+
+    assert (
+        output_dir
+        / "transitions.csv"
+    ).exists()

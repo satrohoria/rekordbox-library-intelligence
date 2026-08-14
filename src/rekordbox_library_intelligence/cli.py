@@ -17,6 +17,9 @@ from .history_intelligence import (
     analyze_history_intelligence,
     format_history_intelligence,
 )
+from .history_reports import (
+    generate_history_reports,
+)
 from .metadata import (
     build_metadata_plan,
     format_metadata_plan,
@@ -32,8 +35,12 @@ from .metadata_rollback import (
     write_rollback_log,
 )
 from .parser import parse_collection
-from .playlists import generate_segment_playlists
-from .rekordbox_playlists import parse_playlists
+from .playlists import (
+    generate_segment_playlists,
+)
+from .rekordbox_playlists import (
+    parse_playlists,
+)
 from .reports import generate_reports
 from .segments import segment_tracks
 
@@ -42,7 +49,10 @@ def format_duplicates(duplicates) -> str:
     lines = [
         "Rekordbox Library Intelligence",
         "=" * 32,
-        f"Potential duplicate pairs: {len(duplicates)}",
+        (
+            "Potential duplicate pairs: "
+            f"{len(duplicates)}"
+        ),
     ]
 
     if not duplicates:
@@ -94,7 +104,7 @@ def format_duplicates(duplicates) -> str:
             )
         else:
             lines.append(
-                f"Recommendation: KEEP TrackID "
+                "Recommendation: KEEP TrackID "
                 f"{duplicate.keep_track_id}"
             )
 
@@ -120,8 +130,14 @@ def format_segments(segments) -> str:
             "Library Segmentation",
             "",
             f"CORE:       {len(segments.core)}",
-            f"ROTATION:   {len(segments.rotation)}",
-            f"DISCOVERY:  {len(segments.discovery)}",
+            (
+                f"ROTATION:   "
+                f"{len(segments.rotation)}"
+            ),
+            (
+                f"DISCOVERY:  "
+                f"{len(segments.discovery)}"
+            ),
             (
                 f"UNASSIGNED: "
                 f"{len(segments.unassigned)}"
@@ -146,9 +162,7 @@ def main():
         required=True,
     )
 
-    # ---------------------------------------------------------
     # AUDIT
-    # ---------------------------------------------------------
     audit_p = sub.add_parser(
         "audit",
         help="Run a non-destructive library audit.",
@@ -167,9 +181,7 @@ def main():
         help="Bitrate threshold used by the audit.",
     )
 
-    # ---------------------------------------------------------
     # DUPLICATES
-    # ---------------------------------------------------------
     duplicates_p = sub.add_parser(
         "duplicates",
         help=(
@@ -182,9 +194,7 @@ def main():
         help="Rekordbox XML export.",
     )
 
-    # ---------------------------------------------------------
     # SEGMENTS
-    # ---------------------------------------------------------
     segments_p = sub.add_parser(
         "segments",
         help=(
@@ -198,9 +208,7 @@ def main():
         help="Rekordbox XML export.",
     )
 
-    # ---------------------------------------------------------
     # PLAYLISTS
-    # ---------------------------------------------------------
     playlists_p = sub.add_parser(
         "playlists",
         help=(
@@ -223,9 +231,7 @@ def main():
         ),
     )
 
-    # ---------------------------------------------------------
     # ANALYTICS
-    # ---------------------------------------------------------
     analytics_p = sub.add_parser(
         "analytics",
         help=(
@@ -248,9 +254,7 @@ def main():
         ),
     )
 
-    # ---------------------------------------------------------
     # REPORT
-    # ---------------------------------------------------------
     report_p = sub.add_parser(
         "report",
         help=(
@@ -267,8 +271,8 @@ def main():
         "--output-dir",
         default="output/reports",
         help=(
-            "Directory where reports will be "
-            "generated."
+            "Directory where reports will "
+            "be generated."
         ),
     )
 
@@ -282,9 +286,7 @@ def main():
         ),
     )
 
-    # ---------------------------------------------------------
     # HISTORY
-    # ---------------------------------------------------------
     history_p = sub.add_parser(
         "history",
         help=(
@@ -301,15 +303,15 @@ def main():
         ),
     )
 
-    # ---------------------------------------------------------
     # HISTORY INTELLIGENCE
-    # ---------------------------------------------------------
-    history_intelligence_p = sub.add_parser(
-        "history-intelligence",
-        help=(
-            "Compare HISTORY sessions and analyze "
-            "cross-session DJ behavior."
-        ),
+    history_intelligence_p = (
+        sub.add_parser(
+            "history-intelligence",
+            help=(
+                "Compare HISTORY sessions and "
+                "analyze cross-session DJ behavior."
+            ),
+        )
     )
 
     history_intelligence_p.add_argument(
@@ -330,9 +332,43 @@ def main():
         ),
     )
 
-    # ---------------------------------------------------------
+    # HISTORY REPORT
+    history_report_p = sub.add_parser(
+        "history-report",
+        help=(
+            "Generate JSON and CSV reports from "
+            "Rekordbox HISTORY sessions."
+        ),
+    )
+
+    history_report_p.add_argument(
+        "xml",
+        help=(
+            "Rekordbox XML export containing "
+            "HISTORY playlists."
+        ),
+    )
+
+    history_report_p.add_argument(
+        "--output-dir",
+        default="output/history_reports",
+        help=(
+            "Directory where history reports "
+            "will be generated."
+        ),
+    )
+
+    history_report_p.add_argument(
+        "--top",
+        type=int,
+        default=10,
+        help=(
+            "Number of repeated tracks, openers "
+            "and closers to include."
+        ),
+    )
+
     # METADATA PREVIEW
-    # ---------------------------------------------------------
     metadata_preview_p = sub.add_parser(
         "metadata-preview",
         help=(
@@ -370,9 +406,7 @@ def main():
         ),
     )
 
-    # ---------------------------------------------------------
     # METADATA APPLY
-    # ---------------------------------------------------------
     metadata_apply_p = sub.add_parser(
         "metadata-apply",
         help=(
@@ -426,9 +460,7 @@ def main():
         ),
     )
 
-    # ---------------------------------------------------------
     # METADATA ROLLBACK
-    # ---------------------------------------------------------
     metadata_rollback_p = sub.add_parser(
         "metadata-rollback",
         help=(
@@ -473,14 +505,9 @@ def main():
         ),
     )
 
-    # ---------------------------------------------------------
-    # PARSE ARGUMENTS
-    # ---------------------------------------------------------
     args = parser.parse_args()
 
-    # ---------------------------------------------------------
     # AUDIT
-    # ---------------------------------------------------------
     if args.command == "audit":
         tracks = parse_collection(
             args.xml
@@ -498,9 +525,7 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
     # DUPLICATES
-    # ---------------------------------------------------------
     elif args.command == "duplicates":
         tracks = parse_collection(
             args.xml
@@ -516,9 +541,7 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
     # SEGMENTS
-    # ---------------------------------------------------------
     elif args.command == "segments":
         tracks = parse_collection(
             args.xml
@@ -534,9 +557,7 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
     # PLAYLISTS
-    # ---------------------------------------------------------
     elif args.command == "playlists":
         tracks = parse_collection(
             args.xml
@@ -575,9 +596,7 @@ def main():
             "files were modified."
         )
 
-    # ---------------------------------------------------------
     # ANALYTICS
-    # ---------------------------------------------------------
     elif args.command == "analytics":
         tracks = parse_collection(
             args.xml
@@ -596,9 +615,7 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
     # REPORT
-    # ---------------------------------------------------------
     elif args.command == "report":
         tracks = parse_collection(
             args.xml
@@ -634,9 +651,7 @@ def main():
             "files were modified."
         )
 
-    # ---------------------------------------------------------
     # HISTORY
-    # ---------------------------------------------------------
     elif args.command == "history":
         tracks = parse_collection(
             args.xml
@@ -657,9 +672,7 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
     # HISTORY INTELLIGENCE
-    # ---------------------------------------------------------
     elif (
         args.command
         == "history-intelligence"
@@ -690,9 +703,61 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
+    # HISTORY REPORT
+    elif args.command == "history-report":
+        tracks = parse_collection(
+            args.xml
+        )
+
+        playlists = parse_playlists(
+            args.xml
+        )
+
+        sessions = find_history_sessions(
+            playlists,
+            tracks,
+        )
+
+        intelligence = (
+            analyze_history_intelligence(
+                sessions,
+                top_limit=args.top,
+            )
+        )
+
+        generated = (
+            generate_history_reports(
+                sessions,
+                intelligence,
+                args.output_dir,
+            )
+        )
+
+        print(
+            "Rekordbox Library Intelligence"
+        )
+        print("=" * 32)
+        print("History Reports")
+        print("")
+
+        print(
+            f"Sessions analyzed: "
+            f"{len(sessions)}"
+        )
+        print("")
+
+        for name, path in generated.items():
+            print(
+                f"{name:20s} -> {path}"
+            )
+
+        print("")
+        print(
+            "No Rekordbox database or audio "
+            "files were modified."
+        )
+
     # METADATA PREVIEW
-    # ---------------------------------------------------------
     elif args.command == "metadata-preview":
         corrections = load_corrections(
             args.csv,
@@ -714,9 +779,7 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
     # METADATA APPLY
-    # ---------------------------------------------------------
     elif args.command == "metadata-apply":
         corrections = load_corrections(
             args.csv,
@@ -749,6 +812,7 @@ def main():
         print(
             f"READY:   {ready}"
         )
+
         print(
             f"BLOCKED: {blocked}"
         )
@@ -841,9 +905,7 @@ def main():
                 "before modification."
             )
 
-    # ---------------------------------------------------------
     # METADATA ROLLBACK
-    # ---------------------------------------------------------
     elif args.command == "metadata-rollback":
         plan = load_rollback_plan(
             args.execution_log
@@ -859,17 +921,17 @@ def main():
         print("")
 
         print(
-            f"Eligible files for rollback: "
+            "Eligible files for rollback: "
             f"{len(plan)}"
         )
 
         print(
-            f"Safety backup directory: "
+            "Safety backup directory: "
             f"{args.safety_backup_dir}"
         )
 
         print(
-            f"Rollback log:            "
+            "Rollback log:            "
             f"{args.log}"
         )
 
