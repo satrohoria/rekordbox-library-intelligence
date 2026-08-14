@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DJ_PLAYLISTS Version="1.0.0">
+
+  <COLLECTION Entries="5">
+
+    <TRACK
+      TrackID="1"
+      Name="Sunrise Intro"
+      Artist="Aurora Drive"
+      AverageBpm="120.0"
+      BitRate="320"
+      PlayCount="3"
+      Rating="204"
+      Location="file://localhost/C:/Music/1.mp3"
+    />
+
+    <TRACK
+      TrackID="2"
+      Name="City Lights"
+      Artist="Nova District"
+      AverageBpm="123.0"
+      BitRate="320"
+      PlayCount="5"
+      Rating="204"
+      Location="file://localhost/C:/Music/2.mp3"
+    />
+
+    <TRACK
+      TrackID="3"
+      Name="Neon Hearts"
+      Artist="Silver Echo"
+      AverageBpm="126.0"
+      BitRate="320"
+      PlayCount="6"
+      Rating="255"
+      Location="file://localhost/C:/Music/3.mp3"
+    />
+
+    <TRACK
+      TrackID="4"
+      Name="After Midnight"
+      Artist="Coastal Drive"
+      AverageBpm="128.0"
+      BitRate="320"
+      PlayCount="4"
+      Rating="204"
+      Location="file://localhost/C:/Music/4.mp3"
+    />
+
+    <TRACK
+      TrackID="5"
+      Name="Last Call"
+      Artist="Velvet Room"
+      AverageBpm="124.0"
+      BitRate="320"
+      PlayCount="2"
+      Rating="204"
+      Location="file://localhost/C:/Music/5.mp3"
+    />
+
+  </COLLECTION>
+
+  <PLAYLISTS>
+    <NODE Type="0" Name="ROOT" Count="1">
+
+      <NODE Type="0" Name="Histories" Count="2">
+
+        <NODE
+          Type="1"
+          Name="HISTORY 001"
+          Entries="5"
+          KeyType="0"
+        >
+          <TRACK Key="1"/>
+          <TRACK Key="2"/>
+          <TRACK Key="3"/>
+          <TRACK Key="4"/>
+          <TRACK Key="5"/>
+        </NODE>
+
+        <NODE
+          Type="1"
+          Name="HISTORY 002"
+          Entries="3"
+          KeyType="0"
+        >
+          <TRACK Key="2"/>
+          <TRACK Key="3"/>
+          <TRACK Key="4"/>
+        </NODE>
+
+      </NODE>
+
+    </NODE>
+  </PLAYLISTS>
+
+</DJ_PLAYLISTS>

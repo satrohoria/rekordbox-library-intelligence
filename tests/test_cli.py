@@ -541,3 +541,45 @@ def test_cli_report(tmp_path):
         report_dir
         / "rating_distribution.csv"
     ).exists()
+def test_cli_history():
+    history_xml = (
+        PROJECT_ROOT
+        / "examples"
+        / "sample_history.xml"
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "history",
+            str(history_xml),
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+
+    assert "DJ History Sessions" in result.stdout
+    assert "Sessions found: 2" in result.stdout
+
+    assert "HISTORY 001" in result.stdout
+    assert "HISTORY 002" in result.stdout
+
+    assert "Tracks:      5" in result.stdout
+    assert "Start BPM:   120.0" in result.stdout
+    assert "Average BPM: 124.2" in result.stdout
+    assert "End BPM:     124.0" in result.stdout
+
+    assert (
+        "Aurora Drive - Sunrise Intro"
+        in result.stdout
+    )
+
+    assert (
+        "Velvet Room - Last Call"
+        in result.stdout
+    )
