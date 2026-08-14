@@ -7,6 +7,10 @@ from .metadata import (
     format_metadata_plan,
     load_corrections,
 )
+from .metadata_apply import (
+    apply_metadata_plan,
+    write_execution_log,
+)
 from .parser import parse_collection
 from .playlists import generate_segment_playlists
 from .segments import segment_tracks
@@ -171,7 +175,7 @@ def main():
     # ---------------------------------------------------------
     # METADATA PREVIEW
     # ---------------------------------------------------------
-    metadata_p = sub.add_parser(
+    metadata_preview_p = sub.add_parser(
         "metadata-preview",
         help=(
             "Preview metadata corrections without modifying "
@@ -179,26 +183,60 @@ def main():
         ),
     )
 
-    metadata_p.add_argument(
+    metadata_preview_p.add_argument(
         "csv",
         help="CSV file containing proposed metadata corrections.",
     )
 
-    metadata_p.add_argument(
+    metadata_preview_p.add_argument(
         "--minimum-confidence",
-        choices=[
-            "HIGH",
-            "MEDIUM",
-            "LOW",
-        ],
+        choices=["HIGH", "MEDIUM", "LOW"],
         default="HIGH",
         help="Minimum confidence level to include.",
     )
 
-    metadata_p.add_argument(
+    metadata_preview_p.add_argument(
         "--skip-file-check",
         action="store_true",
         help="Do not verify whether audio files exist.",
+    )
+
+    # ---------------------------------------------------------
+    # METADATA APPLY
+    # ---------------------------------------------------------
+    metadata_apply_p = sub.add_parser(
+        "metadata-apply",
+        help="Apply Artist and Title corrections with mandatory backups.",
+    )
+
+    metadata_apply_p.add_argument(
+        "csv",
+        help="CSV file containing approved metadata corrections.",
+    )
+
+    metadata_apply_p.add_argument(
+        "--minimum-confidence",
+        choices=["HIGH", "MEDIUM", "LOW"],
+        default="HIGH",
+        help="Minimum confidence level to apply.",
+    )
+
+    metadata_apply_p.add_argument(
+        "--backup-dir",
+        default="output/metadata_backups",
+        help="Directory where original audio files are backed up.",
+    )
+
+    metadata_apply_p.add_argument(
+        "--log",
+        default="output/metadata_apply_log.csv",
+        help="CSV execution log.",
+    )
+
+    metadata_apply_p.add_argument(
+        "--yes",
+        action="store_true",
+        help="Required confirmation for modifying audio metadata.",
     )
 
     args = parser.parse_args()
@@ -227,22 +265,14 @@ def main():
 
         duplicates = find_duplicates(tracks)
 
-        print(
-            format_duplicates(
-                duplicates
-            )
-        )
+        print(format_duplicates(duplicates))
 
     elif args.command == "segments":
         tracks = parse_collection(args.xml)
 
         segments = segment_tracks(tracks)
 
-        print(
-            format_segments(
-                segments
-            )
-        )
+        print(format_segments(segments))
 
     elif args.command == "playlists":
         tracks = parse_collection(args.xml)
@@ -281,11 +311,92 @@ def main():
             check_files=not args.skip_file_check,
         )
 
-        print(
-            format_metadata_plan(
-                plan
-            )
+        print(format_metadata_plan(plan))
+
+    elif args.command == "metadata-apply":
+        corrections = load_corrections(
+            args.csv,
+            minimum_confidence=args.minimum_confidence,
         )
+
+        plan = build_metadata_plan(
+            corrections,
+            check_files=True,
+        )
+
+        ready = sum(
+            item.status == "READY"
+            for item in plan
+        )
+
+        blocked = len(plan) - ready
+
+        print("Rekordbox Library Intelligence")
+        print("=" * 32)
+        print("Metadata Apply")
+        print("")
+        print(f"READY:   {ready}")
+        print(f"BLOCKED: {blocked}")
+        print("")
+        print(f"Backup directory: {args.backup_dir}")
+        print(f"Execution log:    {args.log}")
+        print("")
+
+        if ready == 0:
+            print("Nothing to apply.")
+            return
+
+        if not args.yes:
+            print("SAFETY BLOCK")
+            print("")
+            print(
+                "No files were modified because --yes "
+                "was not provided."
+            )
+            print("")
+            print(
+                "Review the metadata-preview output first."
+            )
+            return
+
+        results = apply_metadata_plan(
+            plan,
+            args.backup_dir,
+        )
+
+        log_path = write_execution_log(
+            results,
+            args.log,
+        )
+
+        ok = sum(
+            result.status == "OK"
+            for result in results
+        )
+
+        skipped = sum(
+            result.status == "SKIPPED"
+            for result in results
+        )
+
+        errors = sum(
+            result.status == "ERROR"
+            for result in results
+        )
+
+        print("Execution complete")
+        print("")
+        print(f"UPDATED: {ok}")
+        print(f"SKIPPED: {skipped}")
+        print(f"ERRORS:  {errors}")
+        print("")
+        print(f"Log: {log_path}")
+
+        if ok:
+            print("")
+            print(
+                "Original files were backed up before modification."
+            )
 
 
 if __name__ == "__main__":
