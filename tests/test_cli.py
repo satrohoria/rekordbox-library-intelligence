@@ -294,3 +294,176 @@ def test_cli_metadata_apply_with_yes(
 
     assert backup_artist == "Old Artist"
     assert backup_title == "Old Title"
+def test_cli_metadata_rollback_without_yes_is_blocked(
+    tmp_path,
+):
+    audio_file = tmp_path / "test.mp3"
+    corrections_csv = tmp_path / "corrections.csv"
+    backup_dir = tmp_path / "backups"
+    apply_log = tmp_path / "apply_log.csv"
+    safety_dir = tmp_path / "rollback_safety"
+    rollback_log = tmp_path / "rollback_log.csv"
+
+    create_test_mp3(
+        audio_file,
+        artist="Old Artist",
+        title="Old Title",
+    )
+
+    create_corrections_csv(
+        corrections_csv,
+        audio_file,
+    )
+
+    apply_result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "metadata-apply",
+            str(corrections_csv),
+            "--backup-dir",
+            str(backup_dir),
+            "--log",
+            str(apply_log),
+            "--yes",
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert apply_result.returncode == 0
+
+    artist, title = read_test_metadata(
+        audio_file
+    )
+
+    assert artist == "New Artist"
+    assert title == "New Title"
+
+    rollback_result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "metadata-rollback",
+            str(apply_log),
+            "--safety-backup-dir",
+            str(safety_dir),
+            "--log",
+            str(rollback_log),
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert rollback_result.returncode == 0
+    assert "SAFETY BLOCK" in rollback_result.stdout
+
+    artist, title = read_test_metadata(
+        audio_file
+    )
+
+    assert artist == "New Artist"
+    assert title == "New Title"
+
+    assert not safety_dir.exists()
+    assert not rollback_log.exists()
+
+
+def test_cli_metadata_rollback_with_yes(
+    tmp_path,
+):
+    audio_file = tmp_path / "test.mp3"
+    corrections_csv = tmp_path / "corrections.csv"
+    backup_dir = tmp_path / "backups"
+    apply_log = tmp_path / "apply_log.csv"
+    safety_dir = tmp_path / "rollback_safety"
+    rollback_log = tmp_path / "rollback_log.csv"
+
+    create_test_mp3(
+        audio_file,
+        artist="Old Artist",
+        title="Old Title",
+    )
+
+    create_corrections_csv(
+        corrections_csv,
+        audio_file,
+    )
+
+    apply_result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "metadata-apply",
+            str(corrections_csv),
+            "--backup-dir",
+            str(backup_dir),
+            "--log",
+            str(apply_log),
+            "--yes",
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert apply_result.returncode == 0
+
+    artist, title = read_test_metadata(
+        audio_file
+    )
+
+    assert artist == "New Artist"
+    assert title == "New Title"
+
+    rollback_result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "metadata-rollback",
+            str(apply_log),
+            "--safety-backup-dir",
+            str(safety_dir),
+            "--log",
+            str(rollback_log),
+            "--yes",
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert rollback_result.returncode == 0
+    assert "Rollback complete" in rollback_result.stdout
+    assert "RESTORED: 1" in rollback_result.stdout
+    assert "ERRORS:   0" in rollback_result.stdout
+
+    artist, title = read_test_metadata(
+        audio_file
+    )
+
+    assert artist == "Old Artist"
+    assert title == "Old Title"
+
+    assert rollback_log.exists()
+
+    safety_files = list(
+        safety_dir.glob("*.mp3")
+    )
+
+    assert len(safety_files) == 1
+
+    safety_artist, safety_title = (
+        read_test_metadata(
+            safety_files[0]
+        )
+    )
+
+    assert safety_artist == "New Artist"
+    assert safety_title == "New Title"
