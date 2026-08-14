@@ -808,3 +808,55 @@ def test_cli_classify_report(
         "were modified."
         in result.stdout
     )
+def test_cli_classify_benchmark():
+    ground_truth = (
+        PROJECT_ROOT
+        / "examples"
+        / "sample_classification_ground_truth.csv"
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "classify-benchmark",
+            str(SAMPLE_XML),
+            str(ground_truth),
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+
+    assert (
+        "Classification Benchmark"
+        in result.stdout
+    )
+
+    assert (
+        "Matched tracks:       8"
+        in result.stdout
+    )
+
+    assert (
+        "Without ground truth: 0"
+        in result.stdout
+    )
+
+    assert (
+        "FIELD ACCURACY"
+        in result.stdout
+    )
+
+    assert (
+        "CONFIDENCE ACCURACY"
+        in result.stdout
+    )
+
+    assert "STYLE:" in result.stdout
+    assert "ELEMENTS:" in result.stdout
+    assert "ENERGY:" in result.stdout
+    assert "FUNCTION:" in result.stdout
