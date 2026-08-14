@@ -709,3 +709,44 @@ def test_cli_history_report(tmp_path):
         output_dir
         / "transitions.csv"
     ).exists()
+def test_cli_classify_preview():
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "classify-preview",
+            str(SAMPLE_XML),
+            "--limit",
+            "3",
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+
+    assert (
+        "Classification Preview"
+        in result.stdout
+    )
+
+    assert (
+        "Tracks analyzed: 8"
+        in result.stdout
+    )
+
+    assert (
+        "CONFIDENCE SUMMARY"
+        in result.stdout
+    )
+
+    assert "STYLE:" in result.stdout
+    assert "ENERGY:" in result.stdout
+    assert "CONFIDENCE:" in result.stdout
+
+    assert (
+        "DRY-RUN ONLY"
+        in result.stdout
+    )

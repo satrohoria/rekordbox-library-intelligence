@@ -1,6 +1,8 @@
 from rekordbox_library_intelligence.classification import (
     classify_collection,
     classify_track,
+    filter_classifications,
+    format_classification_preview,
 )
 from rekordbox_library_intelligence.parser import Track
 
@@ -244,3 +246,101 @@ def test_classify_collection_preserves_order():
         result.track_id
         for result in results
     ] == [10, 20]
+def test_filter_classifications_by_confidence():
+    tracks = [
+        make_track(
+            1,
+            "Last Call",
+            genre="House",
+            bpm=124,
+        ),
+        make_track(
+            2,
+            "House Track",
+            genre="House",
+            bpm=126,
+        ),
+        make_track(
+            3,
+            "Piano",
+            genre="",
+            bpm=None,
+        ),
+        make_track(
+            4,
+            "Unknown",
+            genre="",
+            bpm=None,
+        ),
+    ]
+
+    suggestions = classify_collection(
+        tracks
+    )
+
+    filtered = filter_classifications(
+        suggestions,
+        minimum_confidence="MEDIUM",
+    )
+
+    assert all(
+        suggestion.confidence
+        in ("HIGH", "MEDIUM")
+        for suggestion in filtered
+    )
+
+    assert len(filtered) == 2
+
+
+def test_format_classification_preview():
+    tracks = [
+        make_track(
+            1,
+            "Last Call",
+            genre="House",
+            bpm=124,
+        ),
+        make_track(
+            2,
+            "Unknown",
+            genre="",
+            bpm=None,
+        ),
+    ]
+
+    suggestions = classify_collection(
+        tracks
+    )
+
+    output = format_classification_preview(
+        suggestions
+    )
+
+    assert (
+        "Classification Preview"
+        in output
+    )
+
+    assert (
+        "Tracks analyzed: 2"
+        in output
+    )
+
+    assert (
+        "CONFIDENCE SUMMARY"
+        in output
+    )
+
+    assert "STYLE:" in output
+    assert "ELEMENTS:" in output
+    assert "ENERGY:" in output
+    assert "FUNCTION:" in output
+    assert "CONFIDENCE:" in output
+
+    assert "DRY-RUN ONLY" in output
+
+    assert (
+        "No Rekordbox data or audio files "
+        "were modified."
+        in output
+    )

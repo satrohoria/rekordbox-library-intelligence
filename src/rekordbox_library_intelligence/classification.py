@@ -407,3 +407,161 @@ def classify_collection(
         classify_track(track)
         for track in tracks
     ]
+CONFIDENCE_ORDER = {
+    "REVIEW": 0,
+    "LOW": 1,
+    "MEDIUM": 2,
+    "HIGH": 3,
+}
+
+
+def filter_classifications(
+    suggestions: list[ClassificationSuggestion],
+    minimum_confidence: str = "REVIEW",
+) -> list[ClassificationSuggestion]:
+    minimum_confidence = (
+        minimum_confidence
+        .strip()
+        .upper()
+    )
+
+    if minimum_confidence not in CONFIDENCE_ORDER:
+        raise ValueError(
+            "Invalid confidence level: "
+            f"{minimum_confidence}"
+        )
+
+    minimum_score = CONFIDENCE_ORDER[
+        minimum_confidence
+    ]
+
+    return [
+        suggestion
+        for suggestion in suggestions
+        if CONFIDENCE_ORDER[
+            suggestion.confidence
+        ] >= minimum_score
+    ]
+
+
+def format_classification_preview(
+    suggestions: list[ClassificationSuggestion],
+    minimum_confidence: str = "REVIEW",
+    limit: int | None = None,
+) -> str:
+    counts = {
+        "HIGH": 0,
+        "MEDIUM": 0,
+        "LOW": 0,
+        "REVIEW": 0,
+    }
+
+    for suggestion in suggestions:
+        counts[
+            suggestion.confidence
+        ] += 1
+
+    filtered = filter_classifications(
+        suggestions,
+        minimum_confidence,
+    )
+
+    if limit is not None:
+        filtered = filtered[:limit]
+
+    lines = [
+        "Rekordbox Library Intelligence",
+        "=" * 32,
+        "Classification Preview",
+        "",
+        (
+            f"Tracks analyzed: "
+            f"{len(suggestions)}"
+        ),
+        (
+            f"Suggestions displayed: "
+            f"{len(filtered)}"
+        ),
+        "",
+        "CONFIDENCE SUMMARY",
+        f"HIGH:   {counts['HIGH']}",
+        f"MEDIUM: {counts['MEDIUM']}",
+        f"LOW:    {counts['LOW']}",
+        f"REVIEW: {counts['REVIEW']}",
+        "",
+    ]
+
+    if not filtered:
+        lines.append(
+            "No suggestions match the current filter."
+        )
+    else:
+        for index, suggestion in enumerate(
+            filtered,
+            1,
+        ):
+            elements = (
+                ", ".join(
+                    suggestion.elements
+                )
+                if suggestion.elements
+                else "-"
+            )
+
+            reasons = (
+                "; ".join(
+                    suggestion.reasons
+                )
+                if suggestion.reasons
+                else "insufficient evidence"
+            )
+
+            lines.extend(
+                [
+                    (
+                        f"[{index}] "
+                        f"TrackID {suggestion.track_id}"
+                    ),
+                    (
+                        f"{suggestion.artist} - "
+                        f"{suggestion.title}"
+                    ),
+                    (
+                        "STYLE:    "
+                        f"{suggestion.style or '-'}"
+                    ),
+                    (
+                        "ELEMENTS: "
+                        f"{elements}"
+                    ),
+                    (
+                        "ENERGY:   "
+                        f"{suggestion.energy or '-'}"
+                    ),
+                    (
+                        "FUNCTION: "
+                        f"{suggestion.function or '-'}"
+                    ),
+                    (
+                        "CONFIDENCE: "
+                        f"{suggestion.confidence}"
+                    ),
+                    (
+                        "REASON: "
+                        f"{reasons}"
+                    ),
+                    "",
+                ]
+            )
+
+    lines.extend(
+        [
+            "DRY-RUN ONLY",
+            (
+                "No Rekordbox data or audio files "
+                "were modified."
+            ),
+        ]
+    )
+
+    return "\n".join(lines)

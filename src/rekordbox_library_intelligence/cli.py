@@ -8,6 +8,10 @@ from .audit import (
     audit_tracks,
     format_audit,
 )
+from .classification import (
+    classify_collection,
+    format_classification_preview,
+)
 from .duplicates import find_duplicates
 from .history import (
     find_history_sessions,
@@ -304,14 +308,12 @@ def main():
     )
 
     # HISTORY INTELLIGENCE
-    history_intelligence_p = (
-        sub.add_parser(
-            "history-intelligence",
-            help=(
-                "Compare HISTORY sessions and "
-                "analyze cross-session DJ behavior."
-            ),
-        )
+    history_intelligence_p = sub.add_parser(
+        "history-intelligence",
+        help=(
+            "Compare HISTORY sessions and analyze "
+            "cross-session DJ behavior."
+        ),
     )
 
     history_intelligence_p.add_argument(
@@ -365,6 +367,45 @@ def main():
         help=(
             "Number of repeated tracks, openers "
             "and closers to include."
+        ),
+    )
+
+    # CLASSIFICATION PREVIEW
+    classify_preview_p = sub.add_parser(
+        "classify-preview",
+        help=(
+            "Preview STYLE, ELEMENTS, ENERGY and "
+            "FUNCTION classification suggestions."
+        ),
+    )
+
+    classify_preview_p.add_argument(
+        "xml",
+        help="Rekordbox XML export.",
+    )
+
+    classify_preview_p.add_argument(
+        "--minimum-confidence",
+        choices=[
+            "REVIEW",
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+        ],
+        default="REVIEW",
+        help=(
+            "Minimum classification confidence "
+            "to display."
+        ),
+    )
+
+    classify_preview_p.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help=(
+            "Maximum number of suggestions "
+            "to display."
         ),
     )
 
@@ -567,11 +608,9 @@ def main():
             tracks
         )
 
-        generated = (
-            generate_segment_playlists(
-                segments,
-                args.output_dir,
-            )
+        generated = generate_segment_playlists(
+            segments,
+            args.output_dir,
         )
 
         print(
@@ -602,11 +641,9 @@ def main():
             args.xml
         )
 
-        analytics = (
-            calculate_library_analytics(
-                tracks,
-                top_limit=args.top,
-            )
+        analytics = calculate_library_analytics(
+            tracks,
+            top_limit=args.top,
         )
 
         print(
@@ -621,11 +658,9 @@ def main():
             args.xml
         )
 
-        analytics = (
-            calculate_library_analytics(
-                tracks,
-                top_limit=args.top,
-            )
+        analytics = calculate_library_analytics(
+            tracks,
+            top_limit=args.top,
         )
 
         generated = generate_reports(
@@ -673,10 +708,7 @@ def main():
         )
 
     # HISTORY INTELLIGENCE
-    elif (
-        args.command
-        == "history-intelligence"
-    ):
+    elif args.command == "history-intelligence":
         tracks = parse_collection(
             args.xml
         )
@@ -690,11 +722,9 @@ def main():
             tracks,
         )
 
-        intelligence = (
-            analyze_history_intelligence(
-                sessions,
-                top_limit=args.top,
-            )
+        intelligence = analyze_history_intelligence(
+            sessions,
+            top_limit=args.top,
         )
 
         print(
@@ -718,19 +748,15 @@ def main():
             tracks,
         )
 
-        intelligence = (
-            analyze_history_intelligence(
-                sessions,
-                top_limit=args.top,
-            )
+        intelligence = analyze_history_intelligence(
+            sessions,
+            top_limit=args.top,
         )
 
-        generated = (
-            generate_history_reports(
-                sessions,
-                intelligence,
-                args.output_dir,
-            )
+        generated = generate_history_reports(
+            sessions,
+            intelligence,
+            args.output_dir,
         )
 
         print(
@@ -755,6 +781,26 @@ def main():
         print(
             "No Rekordbox database or audio "
             "files were modified."
+        )
+
+    # CLASSIFICATION PREVIEW
+    elif args.command == "classify-preview":
+        tracks = parse_collection(
+            args.xml
+        )
+
+        suggestions = classify_collection(
+            tracks
+        )
+
+        print(
+            format_classification_preview(
+                suggestions,
+                minimum_confidence=(
+                    args.minimum_confidence
+                ),
+                limit=args.limit,
+            )
         )
 
     # METADATA PREVIEW
@@ -820,12 +866,12 @@ def main():
         print("")
 
         print(
-            f"Backup directory: "
+            "Backup directory: "
             f"{args.backup_dir}"
         )
 
         print(
-            f"Execution log:    "
+            "Execution log:    "
             f"{args.log}"
         )
 
