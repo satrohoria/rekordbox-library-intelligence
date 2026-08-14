@@ -13,6 +13,10 @@ from .history import (
     find_history_sessions,
     format_history_sessions,
 )
+from .history_intelligence import (
+    analyze_history_intelligence,
+    format_history_intelligence,
+)
 from .metadata import (
     build_metadata_plan,
     format_metadata_plan,
@@ -43,10 +47,15 @@ def format_duplicates(duplicates) -> str:
 
     if not duplicates:
         lines.append("")
-        lines.append("No high-confidence duplicates found.")
+        lines.append(
+            "No high-confidence duplicates found."
+        )
         return "\n".join(lines)
 
-    for index, duplicate in enumerate(duplicates, 1):
+    for index, duplicate in enumerate(
+        duplicates,
+        1,
+    ):
         track_a = duplicate.track_a
         track_b = duplicate.track_b
 
@@ -56,19 +65,23 @@ def format_duplicates(duplicates) -> str:
                 f"[{index}]",
                 (
                     f"A: TrackID {track_a.track_id} | "
-                    f"{track_a.artist} - {track_a.title}"
+                    f"{track_a.artist} - "
+                    f"{track_a.title}"
                 ),
                 (
-                    f"   Bitrate: {track_a.bitrate or 'N/A'} kbps | "
+                    f"   Bitrate: "
+                    f"{track_a.bitrate or 'N/A'} kbps | "
                     f"DJ plays: {track_a.play_count} | "
                     f"Rating: {track_a.rating}"
                 ),
                 (
                     f"B: TrackID {track_b.track_id} | "
-                    f"{track_b.artist} - {track_b.title}"
+                    f"{track_b.artist} - "
+                    f"{track_b.title}"
                 ),
                 (
-                    f"   Bitrate: {track_b.bitrate or 'N/A'} kbps | "
+                    f"   Bitrate: "
+                    f"{track_b.bitrate or 'N/A'} kbps | "
                     f"DJ plays: {track_b.play_count} | "
                     f"Rating: {track_b.rating}"
                 ),
@@ -109,7 +122,10 @@ def format_segments(segments) -> str:
             f"CORE:       {len(segments.core)}",
             f"ROTATION:   {len(segments.rotation)}",
             f"DISCOVERY:  {len(segments.discovery)}",
-            f"UNASSIGNED: {len(segments.unassigned)}",
+            (
+                f"UNASSIGNED: "
+                f"{len(segments.unassigned)}"
+            ),
             "",
             f"Total tracks: {total}",
         ]
@@ -156,7 +172,9 @@ def main():
     # ---------------------------------------------------------
     duplicates_p = sub.add_parser(
         "duplicates",
-        help="Detect high-confidence duplicate tracks.",
+        help=(
+            "Detect high-confidence duplicate tracks."
+        ),
     )
 
     duplicates_p.add_argument(
@@ -210,7 +228,9 @@ def main():
     # ---------------------------------------------------------
     analytics_p = sub.add_parser(
         "analytics",
-        help="Analyze DJ library usage and statistics.",
+        help=(
+            "Analyze DJ library usage and statistics."
+        ),
     )
 
     analytics_p.add_argument(
@@ -233,7 +253,9 @@ def main():
     # ---------------------------------------------------------
     report_p = sub.add_parser(
         "report",
-        help="Generate JSON and CSV analytics reports.",
+        help=(
+            "Generate JSON and CSV analytics reports."
+        ),
     )
 
     report_p.add_argument(
@@ -276,6 +298,35 @@ def main():
         help=(
             "Rekordbox XML export containing "
             "HISTORY playlists."
+        ),
+    )
+
+    # ---------------------------------------------------------
+    # HISTORY INTELLIGENCE
+    # ---------------------------------------------------------
+    history_intelligence_p = sub.add_parser(
+        "history-intelligence",
+        help=(
+            "Compare HISTORY sessions and analyze "
+            "cross-session DJ behavior."
+        ),
+    )
+
+    history_intelligence_p.add_argument(
+        "xml",
+        help=(
+            "Rekordbox XML export containing "
+            "HISTORY playlists."
+        ),
+    )
+
+    history_intelligence_p.add_argument(
+        "--top",
+        type=int,
+        default=10,
+        help=(
+            "Number of repeated tracks, openers "
+            "and closers to display."
         ),
     )
 
@@ -396,7 +447,9 @@ def main():
 
     metadata_rollback_p.add_argument(
         "--safety-backup-dir",
-        default="output/rollback_safety_backups",
+        default=(
+            "output/rollback_safety_backups"
+        ),
         help=(
             "Directory used to preserve currently "
             "modified files before rollback."
@@ -405,7 +458,9 @@ def main():
 
     metadata_rollback_p.add_argument(
         "--log",
-        default="output/metadata_rollback_log.csv",
+        default=(
+            "output/metadata_rollback_log.csv"
+        ),
         help="CSV rollback execution log.",
     )
 
@@ -491,9 +546,11 @@ def main():
             tracks
         )
 
-        generated = generate_segment_playlists(
-            segments,
-            args.output_dir,
+        generated = (
+            generate_segment_playlists(
+                segments,
+                args.output_dir,
+            )
         )
 
         print(
@@ -526,9 +583,11 @@ def main():
             args.xml
         )
 
-        analytics = calculate_library_analytics(
-            tracks,
-            top_limit=args.top,
+        analytics = (
+            calculate_library_analytics(
+                tracks,
+                top_limit=args.top,
+            )
         )
 
         print(
@@ -545,9 +604,11 @@ def main():
             args.xml
         )
 
-        analytics = calculate_library_analytics(
-            tracks,
-            top_limit=args.top,
+        analytics = (
+            calculate_library_analytics(
+                tracks,
+                top_limit=args.top,
+            )
         )
 
         generated = generate_reports(
@@ -593,6 +654,39 @@ def main():
         print(
             format_history_sessions(
                 sessions
+            )
+        )
+
+    # ---------------------------------------------------------
+    # HISTORY INTELLIGENCE
+    # ---------------------------------------------------------
+    elif (
+        args.command
+        == "history-intelligence"
+    ):
+        tracks = parse_collection(
+            args.xml
+        )
+
+        playlists = parse_playlists(
+            args.xml
+        )
+
+        sessions = find_history_sessions(
+            playlists,
+            tracks,
+        )
+
+        intelligence = (
+            analyze_history_intelligence(
+                sessions,
+                top_limit=args.top,
+            )
+        )
+
+        print(
+            format_history_intelligence(
+                intelligence
             )
         )
 
@@ -651,21 +745,26 @@ def main():
         print("=" * 32)
         print("Metadata Apply")
         print("")
+
         print(
             f"READY:   {ready}"
         )
         print(
             f"BLOCKED: {blocked}"
         )
+
         print("")
+
         print(
             f"Backup directory: "
             f"{args.backup_dir}"
         )
+
         print(
             f"Execution log:    "
             f"{args.log}"
         )
+
         print("")
 
         if ready == 0:
@@ -679,10 +778,12 @@ def main():
                 "SAFETY BLOCK"
             )
             print("")
+
             print(
                 "No files were modified because "
                 "--yes was not provided."
             )
+
             return
 
         results = apply_metadata_plan(
@@ -714,16 +815,21 @@ def main():
             "Execution complete"
         )
         print("")
+
         print(
             f"UPDATED: {updated}"
         )
+
         print(
             f"SKIPPED: {skipped}"
         )
+
         print(
             f"ERRORS:  {errors}"
         )
+
         print("")
+
         print(
             f"Log: {log_path}"
         )
@@ -780,10 +886,12 @@ def main():
                 "SAFETY BLOCK"
             )
             print("")
+
             print(
                 "No files were restored because "
                 "--yes was not provided."
             )
+
             return
 
         results = apply_rollback_plan(
@@ -810,13 +918,17 @@ def main():
             "Rollback complete"
         )
         print("")
+
         print(
             f"RESTORED: {restored}"
         )
+
         print(
             f"ERRORS:   {errors}"
         )
+
         print("")
+
         print(
             f"Log: {log_path}"
         )

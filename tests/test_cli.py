@@ -583,3 +583,59 @@ def test_cli_history():
         "Velvet Room - Last Call"
         in result.stdout
     )
+def test_cli_history_intelligence():
+    history_xml = (
+        PROJECT_ROOT
+        / "examples"
+        / "sample_history.xml"
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "history-intelligence",
+            str(history_xml),
+            "--top",
+            "3",
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+
+    assert "History Intelligence" in result.stdout
+    assert "Sessions analyzed: 2" in result.stdout
+    assert "Unique tracks played: 5" in result.stdout
+
+    assert "MOST REPEATED TRACKS" in result.stdout
+
+    assert (
+        "Coastal Drive - After Midnight (2 sets)"
+        in result.stdout
+    )
+
+    assert (
+        "Nova District - City Lights (2 sets)"
+        in result.stdout
+    )
+
+    assert (
+        "Silver Echo - Neon Hearts (2 sets)"
+        in result.stdout
+    )
+
+    assert "MOST USED OPENERS" in result.stdout
+    assert "MOST USED CLOSERS" in result.stdout
+
+    assert "BPM BEHAVIOR" in result.stdout
+    assert "Average opening BPM: 121.5" in result.stdout
+    assert "Average closing BPM: 126.0" in result.stdout
+
+    assert "TRANSITIONS" in result.stdout
+    assert "Transitions analyzed: 6" in result.stdout
+    assert "Largest increase: 3.0" in result.stdout
+    assert "Largest decrease: -4.0" in result.stdout
