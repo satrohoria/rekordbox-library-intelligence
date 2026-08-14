@@ -491,3 +491,53 @@ def test_cli_analytics():
     assert "TOP ARTISTS" in result.stdout
     assert "BPM DISTRIBUTION" in result.stdout
     assert "RATING DISTRIBUTION" in result.stdout
+def test_cli_report(tmp_path):
+    report_dir = (
+        tmp_path
+        / "reports"
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "report",
+            str(SAMPLE_XML),
+            "--output-dir",
+            str(report_dir),
+            "--top",
+            "3",
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+    assert "Analytics Reports" in result.stdout
+
+    assert (
+        report_dir
+        / "analytics_summary.json"
+    ).exists()
+
+    assert (
+        report_dir
+        / "top_tracks.csv"
+    ).exists()
+
+    assert (
+        report_dir
+        / "top_artists.csv"
+    ).exists()
+
+    assert (
+        report_dir
+        / "bpm_distribution.csv"
+    ).exists()
+
+    assert (
+        report_dir
+        / "rating_distribution.csv"
+    ).exists()
