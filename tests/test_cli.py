@@ -750,3 +750,61 @@ def test_cli_classify_preview():
         "DRY-RUN ONLY"
         in result.stdout
     )
+def test_cli_classify_report(
+    tmp_path,
+):
+    output_file = (
+        tmp_path
+        / "classification.csv"
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "classify-report",
+            str(SAMPLE_XML),
+            "--output",
+            str(output_file),
+            "--minimum-confidence",
+            "MEDIUM",
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+
+    assert (
+        "Classification Report"
+        in result.stdout
+    )
+
+    assert (
+        "Tracks analyzed: 8"
+        in result.stdout
+    )
+
+    assert output_file.exists()
+
+    content = output_file.read_text(
+        encoding="utf-8-sig"
+    )
+
+    assert "track_id" in content
+    assert "artist" in content
+    assert "title" in content
+    assert "style" in content
+    assert "elements" in content
+    assert "energy" in content
+    assert "function" in content
+    assert "confidence" in content
+    assert "reasons" in content
+
+    assert (
+        "No Rekordbox data or audio files "
+        "were modified."
+        in result.stdout
+    )

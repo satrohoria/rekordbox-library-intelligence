@@ -12,6 +12,9 @@ from .classification import (
     classify_collection,
     format_classification_preview,
 )
+from .classification_reports import (
+    write_classification_csv,
+)
 from .duplicates import find_duplicates
 from .history import (
     find_history_sessions,
@@ -134,18 +137,9 @@ def format_segments(segments) -> str:
             "Library Segmentation",
             "",
             f"CORE:       {len(segments.core)}",
-            (
-                f"ROTATION:   "
-                f"{len(segments.rotation)}"
-            ),
-            (
-                f"DISCOVERY:  "
-                f"{len(segments.discovery)}"
-            ),
-            (
-                f"UNASSIGNED: "
-                f"{len(segments.unassigned)}"
-            ),
+            f"ROTATION:   {len(segments.rotation)}",
+            f"DISCOVERY:  {len(segments.discovery)}",
+            f"UNASSIGNED: {len(segments.unassigned)}",
             "",
             f"Total tracks: {total}",
         ]
@@ -188,9 +182,7 @@ def main():
     # DUPLICATES
     duplicates_p = sub.add_parser(
         "duplicates",
-        help=(
-            "Detect high-confidence duplicate tracks."
-        ),
+        help="Detect high-confidence duplicate tracks.",
     )
 
     duplicates_p.add_argument(
@@ -238,9 +230,7 @@ def main():
     # ANALYTICS
     analytics_p = sub.add_parser(
         "analytics",
-        help=(
-            "Analyze DJ library usage and statistics."
-        ),
+        help="Analyze DJ library usage and statistics.",
     )
 
     analytics_p.add_argument(
@@ -261,9 +251,7 @@ def main():
     # REPORT
     report_p = sub.add_parser(
         "report",
-        help=(
-            "Generate JSON and CSV analytics reports."
-        ),
+        help="Generate JSON and CSV analytics reports.",
     )
 
     report_p.add_argument(
@@ -370,7 +358,7 @@ def main():
         ),
     )
 
-    # CLASSIFICATION PREVIEW
+    # CLASSIFY PREVIEW
     classify_preview_p = sub.add_parser(
         "classify-preview",
         help=(
@@ -409,6 +397,44 @@ def main():
         ),
     )
 
+    # CLASSIFY REPORT
+    classify_report_p = sub.add_parser(
+        "classify-report",
+        help=(
+            "Export classification suggestions "
+            "to CSV."
+        ),
+    )
+
+    classify_report_p.add_argument(
+        "xml",
+        help="Rekordbox XML export.",
+    )
+
+    classify_report_p.add_argument(
+        "--output",
+        default=(
+            "output/classification/"
+            "classification.csv"
+        ),
+        help="Destination CSV file.",
+    )
+
+    classify_report_p.add_argument(
+        "--minimum-confidence",
+        choices=[
+            "REVIEW",
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+        ],
+        default="REVIEW",
+        help=(
+            "Minimum classification confidence "
+            "to export."
+        ),
+    )
+
     # METADATA PREVIEW
     metadata_preview_p = sub.add_parser(
         "metadata-preview",
@@ -434,9 +460,7 @@ def main():
             "LOW",
         ],
         default="HIGH",
-        help=(
-            "Minimum confidence level to include."
-        ),
+        help="Minimum confidence level to include.",
     )
 
     metadata_preview_p.add_argument(
@@ -472,9 +496,7 @@ def main():
             "LOW",
         ],
         default="HIGH",
-        help=(
-            "Minimum confidence level to apply."
-        ),
+        help="Minimum confidence level to apply.",
     )
 
     metadata_apply_p.add_argument(
@@ -520,9 +542,7 @@ def main():
 
     metadata_rollback_p.add_argument(
         "--safety-backup-dir",
-        default=(
-            "output/rollback_safety_backups"
-        ),
+        default="output/rollback_safety_backups",
         help=(
             "Directory used to preserve currently "
             "modified files before rollback."
@@ -531,9 +551,7 @@ def main():
 
     metadata_rollback_p.add_argument(
         "--log",
-        default=(
-            "output/metadata_rollback_log.csv"
-        ),
+        default="output/metadata_rollback_log.csv",
         help="CSV rollback execution log.",
     )
 
@@ -613,9 +631,7 @@ def main():
             args.output_dir,
         )
 
-        print(
-            "Rekordbox Library Intelligence"
-        )
+        print("Rekordbox Library Intelligence")
         print("=" * 32)
         print("Generated playlists")
         print("")
@@ -668,9 +684,7 @@ def main():
             args.output_dir,
         )
 
-        print(
-            "Rekordbox Library Intelligence"
-        )
+        print("Rekordbox Library Intelligence")
         print("=" * 32)
         print("Analytics Reports")
         print("")
@@ -759,16 +773,12 @@ def main():
             args.output_dir,
         )
 
-        print(
-            "Rekordbox Library Intelligence"
-        )
+        print("Rekordbox Library Intelligence")
         print("=" * 32)
         print("History Reports")
         print("")
-
         print(
-            f"Sessions analyzed: "
-            f"{len(sessions)}"
+            f"Sessions analyzed: {len(sessions)}"
         )
         print("")
 
@@ -783,7 +793,7 @@ def main():
             "files were modified."
         )
 
-    # CLASSIFICATION PREVIEW
+    # CLASSIFY PREVIEW
     elif args.command == "classify-preview":
         tracks = parse_collection(
             args.xml
@@ -801,6 +811,40 @@ def main():
                 ),
                 limit=args.limit,
             )
+        )
+
+    # CLASSIFY REPORT
+    elif args.command == "classify-report":
+        tracks = parse_collection(
+            args.xml
+        )
+
+        suggestions = classify_collection(
+            tracks
+        )
+
+        destination = write_classification_csv(
+            suggestions,
+            args.output,
+            minimum_confidence=(
+                args.minimum_confidence
+            ),
+        )
+
+        print("Rekordbox Library Intelligence")
+        print("=" * 32)
+        print("Classification Report")
+        print("")
+        print(
+            f"Tracks analyzed: {len(tracks)}"
+        )
+        print(
+            f"CSV: {destination}"
+        )
+        print("")
+        print(
+            "No Rekordbox data or audio files "
+            "were modified."
         )
 
     # METADATA PREVIEW
@@ -844,37 +888,23 @@ def main():
             for item in plan
         )
 
-        blocked = (
-            len(plan) - ready
-        )
+        blocked = len(plan) - ready
 
-        print(
-            "Rekordbox Library Intelligence"
-        )
+        print("Rekordbox Library Intelligence")
         print("=" * 32)
         print("Metadata Apply")
         print("")
-
-        print(
-            f"READY:   {ready}"
-        )
-
-        print(
-            f"BLOCKED: {blocked}"
-        )
-
+        print(f"READY:   {ready}")
+        print(f"BLOCKED: {blocked}")
         print("")
-
         print(
-            "Backup directory: "
+            f"Backup directory: "
             f"{args.backup_dir}"
         )
-
         print(
-            "Execution log:    "
+            f"Execution log:    "
             f"{args.log}"
         )
-
         print("")
 
         if ready == 0:
@@ -888,12 +918,10 @@ def main():
                 "SAFETY BLOCK"
             )
             print("")
-
             print(
                 "No files were modified because "
                 "--yes was not provided."
             )
-
             return
 
         results = apply_metadata_plan(
@@ -921,35 +949,21 @@ def main():
             for result in results
         )
 
-        print(
-            "Execution complete"
-        )
+        print("Execution complete")
         print("")
-
         print(
             f"UPDATED: {updated}"
         )
-
         print(
             f"SKIPPED: {skipped}"
         )
-
         print(
             f"ERRORS:  {errors}"
         )
-
         print("")
-
         print(
             f"Log: {log_path}"
         )
-
-        if updated:
-            print("")
-            print(
-                "Original files were backed up "
-                "before modification."
-            )
 
     # METADATA ROLLBACK
     elif args.command == "metadata-rollback":
@@ -957,30 +971,22 @@ def main():
             args.execution_log
         )
 
-        print(
-            "Rekordbox Library Intelligence"
-        )
+        print("Rekordbox Library Intelligence")
         print("=" * 32)
-        print(
-            "Metadata Rollback"
-        )
+        print("Metadata Rollback")
         print("")
-
         print(
             "Eligible files for rollback: "
             f"{len(plan)}"
         )
-
         print(
             "Safety backup directory: "
             f"{args.safety_backup_dir}"
         )
-
         print(
             "Rollback log:            "
             f"{args.log}"
         )
-
         print("")
 
         if not plan:
@@ -994,12 +1000,10 @@ def main():
                 "SAFETY BLOCK"
             )
             print("")
-
             print(
                 "No files were restored because "
                 "--yes was not provided."
             )
-
             return
 
         results = apply_rollback_plan(
@@ -1022,21 +1026,15 @@ def main():
             for result in results
         )
 
-        print(
-            "Rollback complete"
-        )
+        print("Rollback complete")
         print("")
-
         print(
             f"RESTORED: {restored}"
         )
-
         print(
             f"ERRORS:   {errors}"
         )
-
         print("")
-
         print(
             f"Log: {log_path}"
         )
