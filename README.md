@@ -1,34 +1,34 @@
 # Rekordbox Library Intelligence
 
 > A safety-first Python toolkit for auditing, analyzing and organizing exported Rekordbox DJ libraries.
+>
+> **Built from a real DJ workflow, validated against a real DJ library.**
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-blue)
+![CI](https://github.com/satrohoria/rekordbox-library-intelligence/actions/workflows/tests.yml/badge.svg)
 ![Tests](https://img.shields.io/badge/tests-122%20passing-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-v0.1.0%20RC-blue)
+![Release](https://img.shields.io/badge/release-v0.1.1-brightgreen)
 
 ---
 
 ## Overview
 
-**Rekordbox Library Intelligence** is a Python command-line toolkit designed to analyze exported Rekordbox XML libraries without modifying the Rekordbox database directly.
+**Rekordbox Library Intelligence** is a Python command-line toolkit for analyzing exported Rekordbox XML libraries without modifying the Rekordbox database directly.
 
-The project was created to solve practical problems found in large DJ music collections, including:
+It was created from practical library-management problems in my own Rekordbox collection, used in my work as DJ **Lenny Santiago**.
 
-- inconsistent metadata;
+Years of collecting, preparing and performing with music created the same problems this toolkit now analyzes:
+
 - duplicate tracks;
+- incomplete or inconsistent metadata;
 - underused music;
-- library segmentation;
-- playlist generation;
-- DJ history analysis;
-- classification of track energy and function;
-- metadata correction workflows;
-- classification benchmarking;
-- reproducible analytics reports.
+- inconsistent DJ classifications;
+- limited visibility into actual library usage;
+- playlist maintenance;
+- risky bulk metadata changes.
 
-The application follows a **non-destructive and safety-first workflow**.
-
-Rekordbox databases are never modified directly.
+Instead of creating a synthetic portfolio problem, I built the project around workflows I actually needed for my own DJ library.
 
 ---
 
@@ -36,9 +36,9 @@ Rekordbox databases are never modified directly.
 
 This project was developed through a **human-led, AI-assisted engineering workflow**.
 
-The project owner defined the requirements, provided the DJ and Rekordbox domain knowledge, executed and validated the implementation, tested the application against a real music library, reviewed classification results, and made the final technical decisions.
+I defined the requirements, supplied the DJ and Rekordbox domain knowledge, executed and validated the implementation, tested the application against my own real music library, reviewed benchmark results and made the final technical decisions.
 
-Generative AI tools were used collaboratively during development to assist with:
+Generative AI tools were used collaboratively to assist with:
 
 - code drafting and refactoring;
 - debugging and troubleshooting;
@@ -48,39 +48,19 @@ Generative AI tools were used collaboratively during development to assist with:
 - classification rule exploration;
 - benchmark analysis.
 
-All proposed changes were executed, tested and evaluated by the project owner before being incorporated into the project.
+Generated code and suggestions were not treated as automatically correct. Proposed changes were executed locally, tested, benchmarked and reviewed before being incorporated into the project.
 
-The goal of using AI in this project was not to replace engineering judgment, but to use it as a development accelerator while maintaining a test-driven and evidence-based workflow.
-
----
-
-## Why this project exists
-
-Large DJ libraries tend to accumulate inconsistencies over time.
-
-A collection may contain hundreds or thousands of tracks with:
-
-- incomplete artists;
-- inconsistent titles;
-- duplicate files;
-- old or unused tracks;
-- mixed bitrate quality;
-- inconsistent classifications;
-- limited visibility into actual DJ usage.
-
-Rekordbox provides powerful tools for performance and library management, but complex collection analysis often requires additional workflows.
-
-This project provides those workflows through a reproducible Python CLI.
+The goal was to use AI as a development accelerator while keeping engineering judgment, validation and final decisions human-led.
 
 ---
 
-## Core principles
+## Core Principles
 
 ### Safety first
 
-Library analysis is read-only unless a command explicitly performs a metadata operation.
+Analysis commands are read-only.
 
-Metadata modifications require:
+Metadata-changing commands require:
 
 - explicit commands;
 - backups;
@@ -93,15 +73,19 @@ Rollback support is available for metadata changes.
 
 The toolkit works from exported Rekordbox XML files.
 
-It does **not** directly modify the Rekordbox database.
+It does **not** modify the Rekordbox database directly.
 
 ### Reproducibility
 
-Analytics, classification benchmarks and reports can be regenerated from the same source data.
+Analytics, reports and classification benchmarks can be regenerated from the same source data.
 
 ### Explainable classification
 
-Classification suggestions include reasoning and confidence instead of returning unexplained labels.
+Classification suggestions include confidence and reasoning instead of returning unexplained labels.
+
+### Privacy by design
+
+Real Rekordbox exports, private ground truth, generated reports, backups and logs are excluded from version control.
 
 ---
 
@@ -109,22 +93,20 @@ Classification suggestions include reasoning and confidence instead of returning
 
 ## Library Audit
 
-Inspect a Rekordbox XML export and report common library issues.
-
-The audit currently identifies:
-
-- missing artists;
-- missing titles;
-- missing BPM values;
-- low bitrate tracks;
-- tracks never played;
-- total DJ plays.
-
-Example:
+Inspect a Rekordbox XML export for common library issues.
 
 ```powershell
 rekordbox-intelligence audit collection.xml
 ```
+
+The audit can identify:
+
+- missing artists;
+- missing titles;
+- missing BPM;
+- low bitrate tracks;
+- tracks never played;
+- total DJ plays.
 
 Custom bitrate threshold:
 
@@ -142,13 +124,13 @@ Detect high-confidence duplicate tracks using library metadata.
 rekordbox-intelligence duplicates collection.xml
 ```
 
-The tool can also suggest which copy should be retained based on available metadata and usage signals.
+The tool can also recommend which copy to retain based on available quality and usage signals.
 
 ---
 
 ## Library Segmentation
 
-Tracks can be divided into operational DJ-library segments:
+Segment tracks into operational DJ-library groups:
 
 - `CORE`
 - `ROTATION`
@@ -158,8 +140,6 @@ Tracks can be divided into operational DJ-library segments:
 ```powershell
 rekordbox-intelligence segments collection.xml
 ```
-
-This makes it easier to identify actively used tracks while separating discovery material and less frequently used music.
 
 ---
 
@@ -175,9 +155,9 @@ Generated files:
 
 ```text
 output/
-├── CORE.m3u8
-├── ROTATION.m3u8
-└── DISCOVERY.m3u8
+â”œâ”€â”€ CORE.m3u8
+â”œâ”€â”€ ROTATION.m3u8
+â””â”€â”€ DISCOVERY.m3u8
 ```
 
 Audio files are not modified.
@@ -214,13 +194,13 @@ rekordbox-intelligence analytics collection.xml --top 20
 
 ## Analytics Reports
 
-Export analytics to machine-readable formats.
+Export analytics to JSON and CSV.
 
 ```powershell
 rekordbox-intelligence report collection.xml
 ```
 
-Reports include JSON and CSV files that can be used in spreadsheets, dashboards or additional analysis.
+These reports can be reused in spreadsheets, dashboards or additional analysis.
 
 ---
 
@@ -240,8 +220,7 @@ Session metrics include:
 - starting BPM;
 - average BPM;
 - ending BPM;
-- minimum BPM;
-- maximum BPM;
+- minimum and maximum BPM;
 - opening track;
 - closing track.
 
@@ -253,13 +232,11 @@ Session metrics include:
 rekordbox-intelligence history-intelligence collection.xml
 ```
 
-This analyzes patterns across multiple DJ sessions.
-
-Examples include:
+This analyzes patterns across multiple DJ sessions, including:
 
 - repeated tracks;
-- frequently used opening tracks;
-- frequently used closing tracks;
+- frequently used openers;
+- frequently used closers;
 - BPM behavior;
 - transition behavior.
 
@@ -286,11 +263,18 @@ transitions.csv
 
 # Track Classification
 
-The project contains an explainable classification engine that can infer DJ-oriented attributes from available track metadata.
+The project contains an explainable classification engine that infers DJ-oriented attributes from available track metadata.
 
 Classification dimensions include:
 
-### STYLE
+- `STYLE`
+- `ELEMENTS`
+- `ENERGY`
+- `FUNCTION`
+
+---
+
+## STYLE
 
 Examples:
 
@@ -301,7 +285,9 @@ Examples:
 - Classic House
 - Pop Remix
 
-### ELEMENTS
+---
+
+## ELEMENTS
 
 Examples:
 
@@ -311,9 +297,11 @@ Examples:
 - Percussion
 - Bassline
 
-### ENERGY
+---
 
-Current ENERGY model:
+## ENERGY
+
+Current BPM-based ENERGY model:
 
 ```text
 BPM < 120        -> Warm
@@ -323,15 +311,15 @@ BPM < 120        -> Warm
 BPM >= 129       -> Peak
 ```
 
-Explicit semantic signals such as `closer`, `last call`, `reset` and `breakdown` can override the BPM model.
+Explicit semantic cues such as `closer`, `last call`, `reset` and `breakdown` can override the BPM model where appropriate.
 
-### FUNCTION
+---
+
+## FUNCTION
 
 FUNCTION uses a hierarchical model.
 
-Explicit semantic signals have priority.
-
-Examples:
+Explicit semantic cues have priority:
 
 ```text
 opening / opener / intro -> Opener
@@ -343,7 +331,7 @@ rescue                   -> Rescue
 closing / closer         -> Closer
 ```
 
-When no explicit signal exists, ENERGY can provide contextual fallback:
+When no explicit semantic cue exists, ENERGY can provide contextual fallback:
 
 ```text
 Warm   -> Opener
@@ -355,7 +343,7 @@ Closer -> Closer
 
 ## Classification Preview
 
-Preview classifications without modifying Rekordbox data.
+Preview classification suggestions without modifying Rekordbox data.
 
 ```powershell
 rekordbox-intelligence classify-preview collection.xml
@@ -379,6 +367,8 @@ rekordbox-intelligence classify-preview collection.xml `
 
 ## Classification CSV Report
 
+Export classification suggestions:
+
 ```powershell
 rekordbox-intelligence classify-report collection.xml
 ```
@@ -391,11 +381,13 @@ output/classification/classification.csv
 
 ---
 
-# Ground Truth
+# Ground Truth and Benchmarking
 
-Classification quality can be measured using manually validated ground-truth datasets.
+Classification quality can be measured against validated ground truth.
 
-## Generate a validation template
+## Reproducible Validation Template
+
+Generate a reproducible sample for manual classification:
 
 ```powershell
 rekordbox-intelligence ground-truth-template collection.xml `
@@ -403,93 +395,42 @@ rekordbox-intelligence ground-truth-template collection.xml `
     --seed 42
 ```
 
-This creates a reproducible random sample that can be classified manually.
-
 ---
 
 ## Rekordbox Grouping Ground Truth
 
-The project can also convert structured Rekordbox `Grouping` metadata into classification ground truth.
+The project can convert structured Rekordbox `Grouping` metadata into validation labels:
 
 ```powershell
 rekordbox-intelligence rekordbox-ground-truth collection.xml
 ```
 
-This functionality is intended for collections where Grouping already represents manually validated DJ classifications.
+`Grouping` is used only as a source of validation labels.
 
-Importantly, **Grouping is used only as validation ground truth and is not used as an input feature by the classifier**.
-
-This prevents classification data leakage.
+It is **not used as an input feature by the classifier**, which prevents direct target leakage.
 
 ---
 
-# Classification Benchmark
+# Real DJ Library Validation
 
-Compare generated classifications against validated ground truth.
+The classification engine was evaluated against a validation dataset derived from **my own real Rekordbox DJ library**, used in my work as DJ **Lenny Santiago**.
 
-```powershell
-rekordbox-intelligence classify-benchmark `
-    collection.xml `
-    ground_truth.csv
-```
+This makes the benchmark representative of an actual long-running DJ workflow rather than a purely synthetic dataset.
 
-The benchmark reports:
+Where applicable, structured Rekordbox `Grouping` metadata was used to derive validation labels. Because `Grouping` is not used by the classifier itself, the benchmark avoids direct target leakage.
 
-- matched tracks;
-- tracks without ground truth;
-- field accuracy;
-- confidence accuracy;
-- prediction coverage;
-- missing predictions;
-- aggregate mismatch patterns.
-
-Individual mismatches can also be displayed:
-
-```powershell
-rekordbox-intelligence classify-benchmark `
-    collection.xml `
-    ground_truth.csv `
-    --show-track-mismatches
-```
-
----
-
-## Reproducible Benchmark Reports
-
-Benchmark results can be exported automatically:
-
-```powershell
-rekordbox-intelligence classify-benchmark `
-    collection.xml `
-    ground_truth.csv `
-    --report-dir output/benchmarks
-```
-
-Generated files:
+### Validation dataset
 
 ```text
-output/benchmarks/
-├── benchmark_summary.json
-├── energy_mismatches.csv
-└── function_mismatches.csv
-```
-
-This makes benchmark evolution reproducible and easier to review.
-
----
-
-# Real-library Benchmark
-
-The classification engine was validated against a real Rekordbox collection.
-
-Dataset:
-
-```text
+Source:               Personal Rekordbox DJ library
+DJ project:           Lenny Santiago
 Library tracks:       996
 Ground-truth tracks:  989
 ```
 
-## ENERGY
+---
+
+## ENERGY Benchmark
 
 ```text
 Evaluated:            989
@@ -501,16 +442,16 @@ Coverage:           100.0%
 Accuracy:            94.7%
 ```
 
-The ENERGY model originally achieved **77.8% accuracy**.
+The original ENERGY model achieved **77.8% accuracy**.
 
-Analysis of real-library BPM distributions revealed two dominant classification errors:
+Analysis of real-library distributions revealed two dominant mismatch patterns:
 
 ```text
 Strong -> Peak
 Lift   -> Groove
 ```
 
-After recalibrating the BPM boundaries, accuracy increased to:
+After recalibrating the BPM boundaries, ENERGY accuracy improved to:
 
 ```text
 77.8% -> 94.7%
@@ -519,12 +460,14 @@ After recalibrating the BPM boundaries, accuracy increased to:
 while maintaining:
 
 ```text
-100% prediction coverage
+100.0% prediction coverage
 ```
+
+A later candidate optimization was intentionally not adopted because it risked overfitting the same validation dataset.
 
 ---
 
-## FUNCTION
+## FUNCTION Benchmark
 
 Validated FUNCTION labels:
 
@@ -542,51 +485,66 @@ Coverage:            82.5%
 Accuracy:            79.2%
 ```
 
-The original FUNCTION model produced almost no predictions.
+The original FUNCTION model produced almost no useful predictions.
 
-A hierarchical approach using semantic rules and ENERGY fallback increased useful FUNCTION coverage substantially.
+A hierarchical approach using semantic rules plus ENERGY fallback significantly improved practical coverage while preserving explainability.
 
 ---
 
-# AI-Assisted Development
+## Benchmark Command
 
-Generative AI was used as a development partner throughout this project.
-
-Rather than treating generated code as automatically correct, the development process followed an iterative workflow:
-
-```text
-Problem definition
-        ↓
-AI-assisted implementation
-        ↓
-Local execution
-        ↓
-Automated tests
-        ↓
-Real-library validation
-        ↓
-Benchmark analysis
-        ↓
-Human review and decision
+```powershell
+rekordbox-intelligence classify-benchmark `
+    collection.xml `
+    ground_truth.csv
 ```
 
-Classification rules were not accepted solely because they appeared reasonable. They were evaluated against manually validated Rekordbox metadata and benchmarked against real library data.
+The benchmark reports:
 
-One ENERGY calibration improved measured accuracy from:
+- matched tracks;
+- tracks without ground truth;
+- field accuracy;
+- confidence accuracy;
+- prediction coverage;
+- missing predictions;
+- aggregate mismatch patterns.
 
-```text
-77.8% -> 94.7%
+Detailed mismatches:
+
+```powershell
+rekordbox-intelligence classify-benchmark `
+    collection.xml `
+    ground_truth.csv `
+    --show-track-mismatches
 ```
 
-A proposed additional optimization was deliberately not adopted after analysis indicated a risk of overfitting the validation dataset.
+---
 
-This workflow demonstrates how AI-assisted software development can be combined with testing, domain expertise and engineering judgment.
+## Reproducible Benchmark Reports
+
+Export benchmark results automatically:
+
+```powershell
+rekordbox-intelligence classify-benchmark `
+    collection.xml `
+    ground_truth.csv `
+    --report-dir output/benchmarks
+```
+
+Generated files:
+
+```text
+output/benchmarks/
+â”œâ”€â”€ benchmark_summary.json
+â”œâ”€â”€ energy_mismatches.csv
+â””â”€â”€ function_mismatches.csv
+```
 
 ---
 
 # Metadata Correction Workflow
 
-The toolkit also supports controlled Artist and Title metadata corrections.
+The toolkit supports controlled Artist and Title metadata corrections.
 
 ## Preview
 
@@ -594,7 +552,7 @@ The toolkit also supports controlled Artist and Title metadata corrections.
 rekordbox-intelligence metadata-preview corrections.csv
 ```
 
-The preview is a dry run.
+This is a dry run.
 
 No audio files are modified.
 
@@ -606,9 +564,7 @@ No audio files are modified.
 rekordbox-intelligence metadata-apply corrections.csv --yes
 ```
 
-Before modification, the application creates backups.
-
-An execution log is also generated.
+Before modification, the application creates backups and writes an execution log.
 
 Default locations:
 
@@ -621,7 +577,7 @@ output/metadata_apply_log.csv
 
 ## Rollback
 
-Changes can be restored using the execution log.
+Restore metadata changes from a previous execution log:
 
 ```powershell
 rekordbox-intelligence metadata-rollback `
@@ -629,7 +585,7 @@ rekordbox-intelligence metadata-rollback `
     --yes
 ```
 
-Before restoring the original metadata, the currently modified files are preserved in a safety backup.
+Before restoring original metadata, the currently modified files are preserved in a safety backup.
 
 ---
 
@@ -637,9 +593,9 @@ Before restoring the original metadata, the currently modified files are preserv
 
 DJ libraries frequently contain international artist names, accented characters and Unicode symbols.
 
-The CLI explicitly configures UTF-8 output streams to avoid legacy Windows encoding failures.
+The CLI configures UTF-8 output streams to avoid legacy Windows encoding failures.
 
-This includes redirected PowerShell output such as:
+Redirected PowerShell output is supported:
 
 ```powershell
 rekordbox-intelligence classify-benchmark `
@@ -694,13 +650,13 @@ Verify the CLI:
 
 # Development
 
-Run the complete test suite:
+Run the full automated test suite:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest
 ```
 
-Current status:
+Current validated status:
 
 ```text
 122 passed
@@ -719,48 +675,47 @@ Compile an individual module:
 
 ```text
 rekordbox-library-intelligence/
-│
-├── examples/
-├── output/
-├── src/
-│   └── rekordbox_library_intelligence/
-│       ├── analytics.py
-│       ├── audit.py
-│       ├── benchmark_reports.py
-│       ├── classification.py
-│       ├── classification_benchmark.py
-│       ├── classification_diagnostics.py
-│       ├── classification_mismatches.py
-│       ├── classification_reports.py
-│       ├── cli.py
-│       ├── console.py
-│       ├── duplicates.py
-│       ├── ground_truth_template.py
-│       ├── history.py
-│       ├── history_intelligence.py
-│       ├── history_reports.py
-│       ├── metadata.py
-│       ├── metadata_apply.py
-│       ├── metadata_rollback.py
-│       ├── parser.py
-│       ├── playlists.py
-│       ├── rekordbox_ground_truth.py
-│       ├── rekordbox_playlists.py
-│       ├── reports.py
-│       └── segments.py
-│
-├── tests/
-├── README.md
-├── LICENSE
-├── pyproject.toml
-└── requirements.txt
+â”‚
+â”œâ”€â”€ docs/
+â”œâ”€â”€ examples/
+â”œâ”€â”€ output/
+â”œâ”€â”€ src/
+â”‚   â””â”€â”€ rekordbox_library_intelligence/
+â”‚       â”œâ”€â”€ analytics.py
+â”‚       â”œâ”€â”€ audit.py
+â”‚       â”œâ”€â”€ benchmark_reports.py
+â”‚       â”œâ”€â”€ classification.py
+â”‚       â”œâ”€â”€ classification_benchmark.py
+â”‚       â”œâ”€â”€ classification_diagnostics.py
+â”‚       â”œâ”€â”€ classification_mismatches.py
+â”‚       â”œâ”€â”€ classification_reports.py
+â”‚       â”œâ”€â”€ cli.py
+â”‚       â”œâ”€â”€ console.py
+â”‚       â”œâ”€â”€ duplicates.py
+â”‚       â”œâ”€â”€ ground_truth_template.py
+â”‚       â”œâ”€â”€ history.py
+â”‚       â”œâ”€â”€ history_intelligence.py
+â”‚       â”œâ”€â”€ history_reports.py
+â”‚       â”œâ”€â”€ metadata.py
+â”‚       â”œâ”€â”€ metadata_apply.py
+â”‚       â”œâ”€â”€ metadata_rollback.py
+â”‚       â”œâ”€â”€ parser.py
+â”‚       â”œâ”€â”€ playlists.py
+â”‚       â”œâ”€â”€ rekordbox_ground_truth.py
+â”‚       â”œâ”€â”€ rekordbox_playlists.py
+â”‚       â”œâ”€â”€ reports.py
+â”‚       â””â”€â”€ segments.py
+â”‚
+â”œâ”€â”€ tests/
+â”œâ”€â”€ README.md
+â”œâ”€â”€ LICENSE
+â”œâ”€â”€ pyproject.toml
+â””â”€â”€ requirements.txt
 ```
 
 ---
 
 # Safety Model
-
-Commands can be divided into three categories.
 
 | Category | Examples | Modifies audio files |
 |---|---|---|
@@ -774,7 +729,7 @@ The project never modifies the Rekordbox database directly.
 
 # Testing
 
-The project currently contains **122 automated tests** covering areas including:
+The project currently contains **122 automated tests** covering:
 
 - XML parsing;
 - audits;
@@ -795,9 +750,61 @@ The project currently contains **122 automated tests** covering areas including:
 
 ---
 
+# AI-Assisted Engineering
+
+Generative AI was used as a development partner throughout this project.
+
+The working process followed an iterative cycle:
+
+```text
+Problem definition
+        â†“
+AI-assisted implementation
+        â†“
+Local execution
+        â†“
+Automated tests
+        â†“
+Real-library validation
+        â†“
+Benchmark analysis
+        â†“
+Human review and decision
+```
+
+The benchmark calibration process is one example of this workflow.
+
+ENERGY accuracy improved from:
+
+```text
+77.8% -> 94.7%
+```
+
+A further candidate optimization was deliberately rejected after analysis indicated a risk of overfitting the validation dataset.
+
+This project therefore documents not only AI-assisted implementation, but also the validation and engineering judgment required to decide when **not** to accept an optimization.
+
+---
+
+# Privacy
+
+Real Rekordbox collections may contain:
+
+- private file paths;
+- listening and performance history;
+- personal library metadata;
+- validation labels;
+- metadata backups.
+
+Real library exports and private validation datasets are intentionally excluded from version control.
+
+The repository contains synthetic example data for reproducibility.
+
+---
+
 # Roadmap
 
-The current `v0.1.0` focuses on reliable library intelligence and reproducible analysis.
+The current release focuses on reliable library intelligence, explainable classification and reproducible analysis.
 
 Potential future work includes:
 
@@ -812,21 +819,11 @@ Experimental classification rules should be validated on independent datasets be
 
 ---
 
-# Privacy
-
-Real Rekordbox collections may contain private file paths, listening history and personal library metadata.
-
-Real library exports and validation datasets should **not** be committed to the repository.
-
-Example files in this repository use synthetic data.
-
----
-
 # Acknowledgments
 
-This project was developed by **Lenilson Nunes** with the assistance of generative AI tools used for collaborative coding, debugging, testing and documentation.
+This project was developed by **Lenilson Nunes / DJ Lenny Santiago** with the assistance of generative AI tools used for collaborative coding, debugging, testing and documentation.
 
-Project requirements, DJ/Rekordbox domain decisions, validation, execution and final implementation decisions were human-led.
+Project requirements, DJ/Rekordbox domain decisions, local execution, validation and final implementation decisions were human-led.
 
 ---
 
@@ -838,18 +835,18 @@ See [LICENSE](LICENSE) for details.
 
 ---
 
-## Project status
+## Project Status
 
-**v0.1.0 — Release Candidate**
+**Stable release: v0.1.1**
 
 ```text
-ENERGY accuracy:   94.7%
-ENERGY coverage:  100.0%
+ENERGY accuracy:    94.7%
+ENERGY coverage:   100.0%
 
-FUNCTION accuracy: 79.2%
-FUNCTION coverage: 82.5%
+FUNCTION accuracy:  79.2%
+FUNCTION coverage:  82.5%
 
-Automated tests:   122 passing
+Automated tests:    122 passing
 ```
 
-The current development focus is release hardening, documentation and repository cleanup.
+The next development focus is independent validation and future analytical improvements.

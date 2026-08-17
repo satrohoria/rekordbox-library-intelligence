@@ -2,36 +2,36 @@
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
-
 [project]
 name = "rekordbox-library-intelligence"
-version = "0.1.0"
+version = "0.1.1"
 description = "Safe Python toolkit for auditing and analyzing Rekordbox DJ libraries."
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
-    {name = "satrohoria"}
+    {name = "Lenilson Nunes"}
 ]
 
 dependencies = [
     "mutagen>=1.48,<2"
 ]
 
-
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0"
 ]
 
+[project.urls]
+Homepage = "https://github.com/satrohoria/rekordbox-library-intelligence"
+Repository = "https://github.com/satrohoria/rekordbox-library-intelligence"
+Issues = "https://github.com/satrohoria/rekordbox-library-intelligence/issues"
 
 [project.scripts]
 rekordbox-intelligence = "rekordbox_library_intelligence.cli:main"
 
-
 [tool.setuptools.packages.find]
 where = ["src"]
-
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
