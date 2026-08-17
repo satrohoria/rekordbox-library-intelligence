@@ -17,6 +17,10 @@ from .classification_benchmark import (
     format_classification_benchmark,
     load_ground_truth,
 )
+from .classification_diagnostics import (
+    build_classification_diagnostics,
+    format_classification_diagnostics,
+)
 from .classification_mismatches import (
     find_classification_mismatches,
     format_classification_mismatches,
@@ -56,6 +60,11 @@ from .metadata_rollback import (
 from .parser import parse_collection
 from .playlists import (
     generate_segment_playlists,
+)
+from .rekordbox_ground_truth import (
+    build_rekordbox_ground_truth,
+    grouping_to_labels,
+    write_rekordbox_ground_truth_csv,
 )
 from .rekordbox_playlists import (
     parse_playlists,
@@ -176,9 +185,7 @@ def main():
         required=True,
     )
 
-    # ---------------------------------------------------------
     # AUDIT
-    # ---------------------------------------------------------
     audit_p = sub.add_parser(
         "audit",
         help="Run a non-destructive library audit.",
@@ -197,14 +204,10 @@ def main():
         help="Bitrate threshold used by the audit.",
     )
 
-    # ---------------------------------------------------------
     # DUPLICATES
-    # ---------------------------------------------------------
     duplicates_p = sub.add_parser(
         "duplicates",
-        help=(
-            "Detect high-confidence duplicate tracks."
-        ),
+        help="Detect high-confidence duplicate tracks.",
     )
 
     duplicates_p.add_argument(
@@ -212,9 +215,7 @@ def main():
         help="Rekordbox XML export.",
     )
 
-    # ---------------------------------------------------------
     # SEGMENTS
-    # ---------------------------------------------------------
     segments_p = sub.add_parser(
         "segments",
         help=(
@@ -228,9 +229,7 @@ def main():
         help="Rekordbox XML export.",
     )
 
-    # ---------------------------------------------------------
     # PLAYLISTS
-    # ---------------------------------------------------------
     playlists_p = sub.add_parser(
         "playlists",
         help=(
@@ -247,20 +246,13 @@ def main():
     playlists_p.add_argument(
         "--output-dir",
         default="output",
-        help=(
-            "Directory where generated playlists "
-            "will be saved."
-        ),
+        help="Directory where playlists are saved.",
     )
 
-    # ---------------------------------------------------------
     # ANALYTICS
-    # ---------------------------------------------------------
     analytics_p = sub.add_parser(
         "analytics",
-        help=(
-            "Analyze DJ library usage and statistics."
-        ),
+        help="Analyze DJ library usage and statistics.",
     )
 
     analytics_p.add_argument(
@@ -272,20 +264,13 @@ def main():
         "--top",
         type=int,
         default=10,
-        help=(
-            "Number of top tracks and artists "
-            "to display."
-        ),
+        help="Number of top tracks and artists.",
     )
 
-    # ---------------------------------------------------------
     # REPORT
-    # ---------------------------------------------------------
     report_p = sub.add_parser(
         "report",
-        help=(
-            "Generate JSON and CSV analytics reports."
-        ),
+        help="Generate JSON and CSV analytics reports.",
     )
 
     report_p.add_argument(
@@ -296,25 +281,17 @@ def main():
     report_p.add_argument(
         "--output-dir",
         default="output/reports",
-        help=(
-            "Directory where reports will "
-            "be generated."
-        ),
+        help="Report destination directory.",
     )
 
     report_p.add_argument(
         "--top",
         type=int,
         default=10,
-        help=(
-            "Number of top tracks and artists "
-            "to include."
-        ),
+        help="Number of top tracks and artists.",
     )
 
-    # ---------------------------------------------------------
     # HISTORY
-    # ---------------------------------------------------------
     history_p = sub.add_parser(
         "history",
         help=(
@@ -325,15 +302,10 @@ def main():
 
     history_p.add_argument(
         "xml",
-        help=(
-            "Rekordbox XML export containing "
-            "HISTORY playlists."
-        ),
+        help="Rekordbox XML export.",
     )
 
-    # ---------------------------------------------------------
     # HISTORY INTELLIGENCE
-    # ---------------------------------------------------------
     history_intelligence_p = sub.add_parser(
         "history-intelligence",
         help=(
@@ -344,25 +316,17 @@ def main():
 
     history_intelligence_p.add_argument(
         "xml",
-        help=(
-            "Rekordbox XML export containing "
-            "HISTORY playlists."
-        ),
+        help="Rekordbox XML export.",
     )
 
     history_intelligence_p.add_argument(
         "--top",
         type=int,
         default=10,
-        help=(
-            "Number of repeated tracks, openers "
-            "and closers to display."
-        ),
+        help="Number of ranked results.",
     )
 
-    # ---------------------------------------------------------
     # HISTORY REPORT
-    # ---------------------------------------------------------
     history_report_p = sub.add_parser(
         "history-report",
         help=(
@@ -373,34 +337,23 @@ def main():
 
     history_report_p.add_argument(
         "xml",
-        help=(
-            "Rekordbox XML export containing "
-            "HISTORY playlists."
-        ),
+        help="Rekordbox XML export.",
     )
 
     history_report_p.add_argument(
         "--output-dir",
         default="output/history_reports",
-        help=(
-            "Directory where history reports "
-            "will be generated."
-        ),
+        help="History report directory.",
     )
 
     history_report_p.add_argument(
         "--top",
         type=int,
         default=10,
-        help=(
-            "Number of repeated tracks, openers "
-            "and closers to include."
-        ),
+        help="Number of ranked results.",
     )
 
-    # ---------------------------------------------------------
     # CLASSIFY PREVIEW
-    # ---------------------------------------------------------
     classify_preview_p = sub.add_parser(
         "classify-preview",
         help=(
@@ -423,31 +376,18 @@ def main():
             "HIGH",
         ],
         default="REVIEW",
-        help=(
-            "Minimum classification confidence "
-            "to display."
-        ),
     )
 
     classify_preview_p.add_argument(
         "--limit",
         type=int,
         default=None,
-        help=(
-            "Maximum number of suggestions "
-            "to display."
-        ),
     )
 
-    # ---------------------------------------------------------
     # CLASSIFY REPORT
-    # ---------------------------------------------------------
     classify_report_p = sub.add_parser(
         "classify-report",
-        help=(
-            "Export classification suggestions "
-            "to CSV."
-        ),
+        help="Export classification suggestions to CSV.",
     )
 
     classify_report_p.add_argument(
@@ -461,7 +401,6 @@ def main():
             "output/classification/"
             "classification.csv"
         ),
-        help="Destination CSV file.",
     )
 
     classify_report_p.add_argument(
@@ -473,20 +412,14 @@ def main():
             "HIGH",
         ],
         default="REVIEW",
-        help=(
-            "Minimum classification confidence "
-            "to export."
-        ),
     )
 
-    # ---------------------------------------------------------
     # CLASSIFY BENCHMARK
-    # ---------------------------------------------------------
     classify_benchmark_p = sub.add_parser(
         "classify-benchmark",
         help=(
             "Compare classification suggestions "
-            "against a ground truth CSV."
+            "against ground truth."
         ),
     )
 
@@ -497,20 +430,44 @@ def main():
 
     classify_benchmark_p.add_argument(
         "ground_truth",
+        help="Validated ground truth CSV.",
+    )
+
+    classify_benchmark_p.add_argument(
+        "--top-mismatches",
+        type=int,
+        default=15,
         help=(
-            "CSV containing validated STYLE, "
-            "ELEMENTS, ENERGY and FUNCTION labels."
+            "Number of aggregate mismatch pairs "
+            "shown per field."
         ),
     )
 
-    # ---------------------------------------------------------
+    classify_benchmark_p.add_argument(
+        "--show-track-mismatches",
+        action="store_true",
+        help=(
+            "Also display individual tracks "
+            "with classification mismatches."
+        ),
+    )
+
+    classify_benchmark_p.add_argument(
+        "--track-mismatch-limit",
+        type=int,
+        default=20,
+        help=(
+            "Maximum number of individual mismatch "
+            "tracks to display."
+        ),
+    )
+
     # GROUND TRUTH TEMPLATE
-    # ---------------------------------------------------------
     ground_truth_p = sub.add_parser(
         "ground-truth-template",
         help=(
-            "Generate a reproducible CSV sample "
-            "for manual classification validation."
+            "Generate a reproducible sample for "
+            "manual classification validation."
         ),
     )
 
@@ -525,34 +482,43 @@ def main():
             "output/ground_truth/"
             "ground_truth_template.csv"
         ),
-        help=(
-            "Destination CSV template."
-        ),
     )
 
     ground_truth_p.add_argument(
         "--sample-size",
         type=int,
         default=50,
-        help=(
-            "Number of tracks to include "
-            "in the sample."
-        ),
     )
 
     ground_truth_p.add_argument(
         "--seed",
         type=int,
         default=42,
+    )
+
+    # REKORDBOX GROUND TRUTH
+    rekordbox_ground_truth_p = sub.add_parser(
+        "rekordbox-ground-truth",
         help=(
-            "Random seed used to make the "
-            "sample reproducible."
+            "Build classification ground truth "
+            "from Rekordbox Grouping metadata."
         ),
     )
 
-    # ---------------------------------------------------------
+    rekordbox_ground_truth_p.add_argument(
+        "xml",
+        help="Rekordbox XML export.",
+    )
+
+    rekordbox_ground_truth_p.add_argument(
+        "--output",
+        default=(
+            "output/ground_truth/"
+            "rekordbox_ground_truth.csv"
+        ),
+    )
+
     # METADATA PREVIEW
-    # ---------------------------------------------------------
     metadata_preview_p = sub.add_parser(
         "metadata-preview",
         help=(
@@ -563,10 +529,6 @@ def main():
 
     metadata_preview_p.add_argument(
         "csv",
-        help=(
-            "CSV file containing proposed metadata "
-            "corrections."
-        ),
     )
 
     metadata_preview_p.add_argument(
@@ -577,22 +539,14 @@ def main():
             "LOW",
         ],
         default="HIGH",
-        help=(
-            "Minimum confidence level to include."
-        ),
     )
 
     metadata_preview_p.add_argument(
         "--skip-file-check",
         action="store_true",
-        help=(
-            "Do not verify whether audio files exist."
-        ),
     )
 
-    # ---------------------------------------------------------
     # METADATA APPLY
-    # ---------------------------------------------------------
     metadata_apply_p = sub.add_parser(
         "metadata-apply",
         help=(
@@ -603,10 +557,6 @@ def main():
 
     metadata_apply_p.add_argument(
         "csv",
-        help=(
-            "CSV file containing approved metadata "
-            "corrections."
-        ),
     )
 
     metadata_apply_p.add_argument(
@@ -617,38 +567,24 @@ def main():
             "LOW",
         ],
         default="HIGH",
-        help=(
-            "Minimum confidence level to apply."
-        ),
     )
 
     metadata_apply_p.add_argument(
         "--backup-dir",
         default="output/metadata_backups",
-        help=(
-            "Directory where original audio files "
-            "are backed up."
-        ),
     )
 
     metadata_apply_p.add_argument(
         "--log",
         default="output/metadata_apply_log.csv",
-        help="CSV execution log.",
     )
 
     metadata_apply_p.add_argument(
         "--yes",
         action="store_true",
-        help=(
-            "Required confirmation for modifying "
-            "audio metadata."
-        ),
     )
 
-    # ---------------------------------------------------------
     # METADATA ROLLBACK
-    # ---------------------------------------------------------
     metadata_rollback_p = sub.add_parser(
         "metadata-rollback",
         help=(
@@ -659,41 +595,26 @@ def main():
 
     metadata_rollback_p.add_argument(
         "execution_log",
-        help=(
-            "Execution log generated by "
-            "metadata-apply."
-        ),
     )
 
     metadata_rollback_p.add_argument(
         "--safety-backup-dir",
         default="output/rollback_safety_backups",
-        help=(
-            "Directory used to preserve currently "
-            "modified files before rollback."
-        ),
     )
 
     metadata_rollback_p.add_argument(
         "--log",
         default="output/metadata_rollback_log.csv",
-        help="CSV rollback execution log.",
     )
 
     metadata_rollback_p.add_argument(
         "--yes",
         action="store_true",
-        help=(
-            "Required confirmation for restoring "
-            "original files."
-        ),
     )
 
     args = parser.parse_args()
 
-    # ---------------------------------------------------------
     # AUDIT
-    # ---------------------------------------------------------
     if args.command == "audit":
         tracks = parse_collection(
             args.xml
@@ -711,9 +632,7 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
     # DUPLICATES
-    # ---------------------------------------------------------
     elif args.command == "duplicates":
         tracks = parse_collection(
             args.xml
@@ -729,9 +648,7 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
     # SEGMENTS
-    # ---------------------------------------------------------
     elif args.command == "segments":
         tracks = parse_collection(
             args.xml
@@ -747,9 +664,7 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
     # PLAYLISTS
-    # ---------------------------------------------------------
     elif args.command == "playlists":
         tracks = parse_collection(
             args.xml
@@ -764,9 +679,7 @@ def main():
             args.output_dir,
         )
 
-        print(
-            "Rekordbox Library Intelligence"
-        )
+        print("Rekordbox Library Intelligence")
         print("=" * 32)
         print("Generated playlists")
         print("")
@@ -786,9 +699,7 @@ def main():
             "files were modified."
         )
 
-    # ---------------------------------------------------------
     # ANALYTICS
-    # ---------------------------------------------------------
     elif args.command == "analytics":
         tracks = parse_collection(
             args.xml
@@ -805,9 +716,7 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
     # REPORT
-    # ---------------------------------------------------------
     elif args.command == "report":
         tracks = parse_collection(
             args.xml
@@ -823,9 +732,7 @@ def main():
             args.output_dir,
         )
 
-        print(
-            "Rekordbox Library Intelligence"
-        )
+        print("Rekordbox Library Intelligence")
         print("=" * 32)
         print("Analytics Reports")
         print("")
@@ -841,9 +748,7 @@ def main():
             "files were modified."
         )
 
-    # ---------------------------------------------------------
     # HISTORY
-    # ---------------------------------------------------------
     elif args.command == "history":
         tracks = parse_collection(
             args.xml
@@ -864,9 +769,7 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
     # HISTORY INTELLIGENCE
-    # ---------------------------------------------------------
     elif args.command == "history-intelligence":
         tracks = parse_collection(
             args.xml
@@ -881,11 +784,9 @@ def main():
             tracks,
         )
 
-        intelligence = (
-            analyze_history_intelligence(
-                sessions,
-                top_limit=args.top,
-            )
+        intelligence = analyze_history_intelligence(
+            sessions,
+            top_limit=args.top,
         )
 
         print(
@@ -894,9 +795,7 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
     # HISTORY REPORT
-    # ---------------------------------------------------------
     elif args.command == "history-report":
         tracks = parse_collection(
             args.xml
@@ -911,11 +810,9 @@ def main():
             tracks,
         )
 
-        intelligence = (
-            analyze_history_intelligence(
-                sessions,
-                top_limit=args.top,
-            )
+        intelligence = analyze_history_intelligence(
+            sessions,
+            top_limit=args.top,
         )
 
         generated = generate_history_reports(
@@ -924,15 +821,12 @@ def main():
             args.output_dir,
         )
 
-        print(
-            "Rekordbox Library Intelligence"
-        )
+        print("Rekordbox Library Intelligence")
         print("=" * 32)
         print("History Reports")
         print("")
         print(
-            f"Sessions analyzed: "
-            f"{len(sessions)}"
+            f"Sessions analyzed: {len(sessions)}"
         )
         print("")
 
@@ -947,9 +841,7 @@ def main():
             "files were modified."
         )
 
-    # ---------------------------------------------------------
     # CLASSIFY PREVIEW
-    # ---------------------------------------------------------
     elif args.command == "classify-preview":
         tracks = parse_collection(
             args.xml
@@ -969,9 +861,7 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
     # CLASSIFY REPORT
-    # ---------------------------------------------------------
     elif args.command == "classify-report":
         tracks = parse_collection(
             args.xml
@@ -989,15 +879,12 @@ def main():
             ),
         )
 
-        print(
-            "Rekordbox Library Intelligence"
-        )
+        print("Rekordbox Library Intelligence")
         print("=" * 32)
         print("Classification Report")
         print("")
         print(
-            f"Tracks analyzed: "
-            f"{len(tracks)}"
+            f"Tracks analyzed: {len(tracks)}"
         )
         print(
             f"CSV: {destination}"
@@ -1008,9 +895,7 @@ def main():
             "were modified."
         )
 
-    # ---------------------------------------------------------
     # CLASSIFY BENCHMARK
-    # ---------------------------------------------------------
     elif args.command == "classify-benchmark":
         tracks = parse_collection(
             args.xml
@@ -1029,6 +914,13 @@ def main():
             ground_truth,
         )
 
+        diagnostics = (
+            build_classification_diagnostics(
+                suggestions,
+                ground_truth,
+            )
+        )
+
         mismatches = (
             find_classification_mismatches(
                 suggestions,
@@ -1045,14 +937,53 @@ def main():
         print("")
 
         print(
-            format_classification_mismatches(
-                mismatches
+            format_classification_diagnostics(
+                diagnostics,
+                top_limit=args.top_mismatches,
             )
         )
 
-    # ---------------------------------------------------------
+        print("")
+        print(
+            "Track mismatches: "
+            f"{len(mismatches)}"
+        )
+
+        if not args.show_track_mismatches:
+            print(
+                "Detailed track mismatches hidden. "
+                "Use --show-track-mismatches "
+                "to display them."
+            )
+        else:
+            limit = max(
+                args.track_mismatch_limit,
+                0,
+            )
+
+            selected = (
+                mismatches[:limit]
+                if limit
+                else []
+            )
+
+            print("")
+
+            print(
+                format_classification_mismatches(
+                    selected
+                )
+            )
+
+            if len(mismatches) > len(selected):
+                print("")
+                print(
+                    "Additional mismatch tracks "
+                    "not displayed: "
+                    f"{len(mismatches) - len(selected)}"
+                )
+
     # GROUND TRUTH TEMPLATE
-    # ---------------------------------------------------------
     elif args.command == "ground-truth-template":
         tracks = parse_collection(
             args.xml
@@ -1070,23 +1001,18 @@ def main():
             len(tracks),
         )
 
-        print(
-            "Rekordbox Library Intelligence"
-        )
+        print("Rekordbox Library Intelligence")
         print("=" * 32)
         print("Ground Truth Template")
         print("")
         print(
-            f"Tracks available: "
-            f"{len(tracks)}"
+            f"Tracks available: {len(tracks)}"
         )
         print(
-            f"Tracks selected:  "
-            f"{selected_count}"
+            f"Tracks selected:  {selected_count}"
         )
         print(
-            f"Random seed:      "
-            f"{args.seed}"
+            f"Random seed:      {args.seed}"
         )
         print("")
         print(
@@ -1103,9 +1029,140 @@ def main():
             "were modified."
         )
 
-    # ---------------------------------------------------------
+    # REKORDBOX GROUND TRUTH
+    elif args.command == "rekordbox-ground-truth":
+        tracks = parse_collection(
+            args.xml
+        )
+
+        ground_truth = (
+            build_rekordbox_ground_truth(
+                tracks
+            )
+        )
+
+        destination = (
+            write_rekordbox_ground_truth_csv(
+                tracks,
+                args.output,
+            )
+        )
+
+        tracks_with_grouping = [
+            track
+            for track in tracks
+            if track.grouping.strip()
+        ]
+
+        unmapped_tracks = []
+        unmapped_values = set()
+
+        for track in tracks_with_grouping:
+            energy, function = grouping_to_labels(
+                track.grouping
+            )
+
+            if (
+                energy is None
+                and function is None
+            ):
+                unmapped_tracks.append(
+                    track
+                )
+
+                unmapped_values.add(
+                    track.grouping.strip()
+                )
+
+        energy_labels = sum(
+            truth.energy is not None
+            for truth in ground_truth.values()
+        )
+
+        function_labels = sum(
+            truth.function is not None
+            for truth in ground_truth.values()
+        )
+
+        coverage = (
+            len(ground_truth)
+            / len(tracks)
+            * 100
+            if tracks
+            else 0.0
+        )
+
+        print("Rekordbox Library Intelligence")
+        print("=" * 32)
+        print("Rekordbox Ground Truth")
+        print("")
+
+        print(
+            "Tracks in library:          "
+            f"{len(tracks)}"
+        )
+
+        print(
+            "Tracks with Grouping:       "
+            f"{len(tracks_with_grouping)}"
+        )
+
+        print(
+            "Ground truth tracks:        "
+            f"{len(ground_truth)}"
+        )
+
+        print(
+            "Coverage:                   "
+            f"{coverage:.1f}%"
+        )
+
+        print("")
+
+        print(
+            "ENERGY labels:              "
+            f"{energy_labels}"
+        )
+
+        print(
+            "FUNCTION labels:            "
+            f"{function_labels}"
+        )
+
+        print("")
+
+        print(
+            "Unmapped Grouping tracks:   "
+            f"{len(unmapped_tracks)}"
+        )
+
+        print(
+            "Unmapped Grouping values:   "
+            f"{len(unmapped_values)}"
+        )
+
+        if unmapped_values:
+            print("")
+            print("UNMAPPED VALUES")
+
+            for value in sorted(
+                unmapped_values
+            ):
+                print(
+                    f"- {value}"
+                )
+
+        print("")
+        print(
+            f"CSV: {destination}"
+        )
+        print("")
+        print(
+            "No Rekordbox data or audio files "
+            "were modified."
+        )
+
     # METADATA PREVIEW
-    # ---------------------------------------------------------
     elif args.command == "metadata-preview":
         corrections = load_corrections(
             args.csv,
@@ -1127,9 +1184,7 @@ def main():
             )
         )
 
-    # ---------------------------------------------------------
     # METADATA APPLY
-    # ---------------------------------------------------------
     elif args.command == "metadata-apply":
         corrections = load_corrections(
             args.csv,
@@ -1148,43 +1203,31 @@ def main():
             for item in plan
         )
 
-        blocked = (
-            len(plan) - ready
-        )
+        blocked = len(plan) - ready
 
-        print(
-            "Rekordbox Library Intelligence"
-        )
+        print("Rekordbox Library Intelligence")
         print("=" * 32)
         print("Metadata Apply")
         print("")
-        print(
-            f"READY:   {ready}"
-        )
-        print(
-            f"BLOCKED: {blocked}"
-        )
+        print(f"READY:   {ready}")
+        print(f"BLOCKED: {blocked}")
         print("")
         print(
-            "Backup directory: "
+            f"Backup directory: "
             f"{args.backup_dir}"
         )
         print(
-            "Execution log:    "
+            f"Execution log:    "
             f"{args.log}"
         )
         print("")
 
         if ready == 0:
-            print(
-                "Nothing to apply."
-            )
+            print("Nothing to apply.")
             return
 
         if not args.yes:
-            print(
-                "SAFETY BLOCK"
-            )
+            print("SAFETY BLOCK")
             print("")
             print(
                 "No files were modified because "
@@ -1217,39 +1260,23 @@ def main():
             for result in results
         )
 
-        print(
-            "Execution complete"
-        )
+        print("Execution complete")
         print("")
-        print(
-            f"UPDATED: {updated}"
-        )
-        print(
-            f"SKIPPED: {skipped}"
-        )
-        print(
-            f"ERRORS:  {errors}"
-        )
+        print(f"UPDATED: {updated}")
+        print(f"SKIPPED: {skipped}")
+        print(f"ERRORS:  {errors}")
         print("")
-        print(
-            f"Log: {log_path}"
-        )
+        print(f"Log: {log_path}")
 
-    # ---------------------------------------------------------
     # METADATA ROLLBACK
-    # ---------------------------------------------------------
     elif args.command == "metadata-rollback":
         plan = load_rollback_plan(
             args.execution_log
         )
 
-        print(
-            "Rekordbox Library Intelligence"
-        )
+        print("Rekordbox Library Intelligence")
         print("=" * 32)
-        print(
-            "Metadata Rollback"
-        )
+        print("Metadata Rollback")
         print("")
 
         print(
@@ -1270,15 +1297,11 @@ def main():
         print("")
 
         if not plan:
-            print(
-                "Nothing to rollback."
-            )
+            print("Nothing to rollback.")
             return
 
         if not args.yes:
-            print(
-                "SAFETY BLOCK"
-            )
+            print("SAFETY BLOCK")
             print("")
             print(
                 "No files were restored because "
@@ -1306,20 +1329,12 @@ def main():
             for result in results
         )
 
-        print(
-            "Rollback complete"
-        )
+        print("Rollback complete")
         print("")
-        print(
-            f"RESTORED: {restored}"
-        )
-        print(
-            f"ERRORS:   {errors}"
-        )
+        print(f"RESTORED: {restored}")
+        print(f"ERRORS:   {errors}")
         print("")
-        print(
-            f"Log: {log_path}"
-        )
+        print(f"Log: {log_path}")
 
 
 if __name__ == "__main__":

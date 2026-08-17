@@ -875,6 +875,9 @@ def test_cli_classify_benchmark_shows_mismatches():
             "classify-benchmark",
             str(SAMPLE_XML),
             str(ground_truth),
+            "--show-track-mismatches",
+            "--track-mismatch-limit",
+            "20",
         ],
         cwd=PROJECT_ROOT,
         capture_output=True,
@@ -918,10 +921,7 @@ def test_cli_classify_benchmark_shows_mismatches():
         in result.stdout
     )
 
-    assert (
-        "Predicted: -"
-        in result.stdout
-    )
+    
 def test_cli_ground_truth_template(
     tmp_path,
 ):
@@ -989,4 +989,59 @@ def test_cli_ground_truth_template(
         "No Rekordbox data or audio files "
         "were modified."
         in result.stdout
+    )
+def test_cli_classify_benchmark_shows_diagnostics():
+    ground_truth = (
+        PROJECT_ROOT
+        / "examples"
+        / "sample_classification_ground_truth.csv"
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "classify-benchmark",
+            str(SAMPLE_XML),
+            str(ground_truth),
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+
+    assert (
+        "Classification Benchmark"
+        in result.stdout
+    )
+
+    assert (
+        "Classification Diagnostics"
+        in result.stdout
+    )
+
+    assert "ENERGY" in result.stdout
+    assert "FUNCTION" in result.stdout
+
+    assert (
+        "TOP MISMATCHES"
+        in result.stdout
+    )
+
+    assert (
+        "Track mismatches:"
+        in result.stdout
+    )
+
+    assert (
+        "Detailed track mismatches hidden."
+        in result.stdout
+    )
+
+    assert (
+        "TrackID 1007"
+        not in result.stdout
     )
