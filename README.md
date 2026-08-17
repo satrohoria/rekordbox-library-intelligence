@@ -1,134 +1,132 @@
-<div align="center">
+# Rekordbox Library Intelligence
 
-# 🎧 Rekordbox Library Intelligence
-
-### Safe automation and analytics for Rekordbox DJ libraries
-
-**Python toolkit for auditing, analyzing, organizing and safely maintaining exported Rekordbox libraries.**
+> A safety-first Python toolkit for auditing, analyzing and organizing exported Rekordbox DJ libraries.
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-blue)
-![Tests](https://img.shields.io/badge/tests-33%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-122%20passing-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-active%20development-orange)
-
-</div>
+![Status](https://img.shields.io/badge/status-v0.1.0%20RC-blue)
 
 ---
 
 ## Overview
 
-**Rekordbox Library Intelligence** is a Python command-line toolkit designed to automate common maintenance and analysis tasks in large Rekordbox DJ libraries.
+**Rekordbox Library Intelligence** is a Python command-line toolkit designed to analyze exported Rekordbox XML libraries without modifying the Rekordbox database directly.
 
-The project started from a real-world need to organize a growing music collection containing inconsistent metadata, duplicate tracks, different file qualities, historical DJ play data and manually maintained playlists.
+The project was created to solve practical problems found in large DJ music collections, including:
 
-Instead of directly modifying the Rekordbox database, the application works primarily with exported XML files and follows a **safety-first, non-destructive workflow**.
+- inconsistent metadata;
+- duplicate tracks;
+- underused music;
+- library segmentation;
+- playlist generation;
+- DJ history analysis;
+- classification of track energy and function;
+- metadata correction workflows;
+- classification benchmarking;
+- reproducible analytics reports.
 
----
+The application follows a **non-destructive and safety-first workflow**.
 
-## The Problem
-
-Large DJ libraries naturally accumulate technical and organizational issues over time:
-
-- Missing Artist or Title metadata
-- Duplicate tracks
-- Multiple versions of the same song
-- Low bitrate files
-- Tracks that were never played
-- Frequently used tracks mixed with experimental tracks
-- Inconsistent ratings
-- Manual playlist maintenance
-- Risky bulk metadata corrections
-- Lack of visibility into historical DJ usage
-
-Managing these issues manually becomes increasingly difficult as the collection grows.
-
-**Rekordbox Library Intelligence automates this analysis while keeping destructive operations controlled and reversible.**
+Rekordbox databases are never modified directly.
 
 ---
 
-## Features
+## Development Approach
 
-| Feature | Description | Safety Model |
-|---|---|---|
-| 🔍 **Library Audit** | Detect metadata problems, missing BPM and low bitrate files | Read-only |
-| ♻️ **Duplicate Detection** | Detect high-confidence duplicate candidates | No automatic deletion |
-| 🎯 **Library Segmentation** | Create CORE, ROTATION and DISCOVERY groups | Read-only |
-| 🎵 **Playlist Generator** | Generate M3U8 playlists automatically | Creates new files only |
-| 📝 **Metadata Preview** | Validate proposed Artist / Title changes | Dry-run only |
-| 💾 **Metadata Apply** | Safely modify ID3 Artist / Title fields | Mandatory backup |
-| ↩️ **Metadata Rollback** | Restore files from a previous apply operation | Safety backup before restore |
-| 🧪 **Automated Tests** | Validate parsing, CLI, metadata and recovery workflows | Temporary test files only |
+This project was developed through a **human-led, AI-assisted engineering workflow**.
+
+The project owner defined the requirements, provided the DJ and Rekordbox domain knowledge, executed and validated the implementation, tested the application against a real music library, reviewed classification results, and made the final technical decisions.
+
+Generative AI tools were used collaboratively during development to assist with:
+
+- code drafting and refactoring;
+- debugging and troubleshooting;
+- automated test generation;
+- CLI design;
+- documentation;
+- classification rule exploration;
+- benchmark analysis.
+
+All proposed changes were executed, tested and evaluated by the project owner before being incorporated into the project.
+
+The goal of using AI in this project was not to replace engineering judgment, but to use it as a development accelerator while maintaining a test-driven and evidence-based workflow.
 
 ---
 
-## Quick Start
+## Why this project exists
 
-After installation:
+Large DJ libraries tend to accumulate inconsistencies over time.
 
-```powershell
-rekordbox-intelligence --help
-```
+A collection may contain hundreds or thousands of tracks with:
 
-Audit a Rekordbox library:
+- incomplete artists;
+- inconsistent titles;
+- duplicate files;
+- old or unused tracks;
+- mixed bitrate quality;
+- inconsistent classifications;
+- limited visibility into actual DJ usage.
+
+Rekordbox provides powerful tools for performance and library management, but complex collection analysis often requires additional workflows.
+
+This project provides those workflows through a reproducible Python CLI.
+
+---
+
+## Core principles
+
+### Safety first
+
+Library analysis is read-only unless a command explicitly performs a metadata operation.
+
+Metadata modifications require:
+
+- explicit commands;
+- backups;
+- execution logs;
+- confirmation flags.
+
+Rollback support is available for metadata changes.
+
+### Rekordbox database isolation
+
+The toolkit works from exported Rekordbox XML files.
+
+It does **not** directly modify the Rekordbox database.
+
+### Reproducibility
+
+Analytics, classification benchmarks and reports can be regenerated from the same source data.
+
+### Explainable classification
+
+Classification suggestions include reasoning and confidence instead of returning unexplained labels.
+
+---
+
+# Features
+
+## Library Audit
+
+Inspect a Rekordbox XML export and report common library issues.
+
+The audit currently identifies:
+
+- missing artists;
+- missing titles;
+- missing BPM values;
+- low bitrate tracks;
+- tracks never played;
+- total DJ plays.
+
+Example:
 
 ```powershell
 rekordbox-intelligence audit collection.xml
 ```
 
-Find duplicate tracks:
-
-```powershell
-rekordbox-intelligence duplicates collection.xml
-```
-
-Analyze library usage:
-
-```powershell
-rekordbox-intelligence segments collection.xml
-```
-
-Generate playlists:
-
-```powershell
-rekordbox-intelligence playlists collection.xml
-```
-
----
-
-# 🔍 Library Audit
-
-The audit command analyzes an exported Rekordbox XML collection without modifying it.
-
-```powershell
-rekordbox-intelligence audit collection.xml
-```
-
-The audit currently checks:
-
-- Total number of tracks
-- Missing Artist
-- Missing Title
-- Missing BPM
-- Low bitrate files
-- Tracks played at least once
-- Total DJ play count
-
-### Example
-
-```text
-Rekordbox Library Intelligence
-================================
-
-Tracks: 1000
-Missing artist: 12
-Missing title: 2
-Missing BPM: 4
-Low bitrate (< 256 kbps): 36
-Tracks played at least once: 421
-Total DJ plays: 973
-```
-
-The bitrate threshold can also be changed:
+Custom bitrate threshold:
 
 ```powershell
 rekordbox-intelligence audit collection.xml --low-bitrate 320
@@ -136,121 +134,44 @@ rekordbox-intelligence audit collection.xml --low-bitrate 320
 
 ---
 
-# ♻️ Duplicate Detection
+## Duplicate Detection
 
-The duplicate engine detects high-confidence duplicate candidates using normalized:
-
-```text
-Artist + Title
-```
-
-Example:
+Detect high-confidence duplicate tracks using library metadata.
 
 ```powershell
 rekordbox-intelligence duplicates collection.xml
 ```
 
-The engine does **not delete files**.
-
-Instead, it recommends which version should be kept.
-
-### Decision priority
-
-When two duplicate candidates are found, the current recommendation logic considers:
-
-1. DJ play count
-2. Bitrate
-3. Rekordbox rating
-4. Metadata completeness
-5. Manual review when still tied
-
-### Example output
-
-```text
-Potential duplicate pairs: 2
-
-[1]
-
-A: TrackID 1001 | Example Artist - Example Track
-   Bitrate: 128 kbps
-   DJ plays: 0
-   Rating: 102
-
-B: TrackID 1002 | Example Artist - Example Track
-   Bitrate: 320 kbps
-   DJ plays: 4
-   Rating: 204
-
-Recommendation: KEEP TrackID 1002
-Reason: higher DJ play count
-```
-
-This follows a **decision-support approach**, rather than automatically deleting media.
+The tool can also suggest which copy should be retained based on available metadata and usage signals.
 
 ---
 
-# 🎯 Library Segmentation
+## Library Segmentation
 
-The segmentation engine separates tracks based on historical DJ usage and rating.
+Tracks can be divided into operational DJ-library segments:
+
+- `CORE`
+- `ROTATION`
+- `DISCOVERY`
+- `UNASSIGNED`
 
 ```powershell
 rekordbox-intelligence segments collection.xml
 ```
 
-## CORE
-
-Tracks that have already proven useful during DJ sets.
-
-```text
-PlayCount >= 3
-```
-
-## ROTATION
-
-Tracks that have been played before and have a reasonable rating.
-
-```text
-PlayCount = 1-2
-Rating >= 3 stars
-```
-
-## DISCOVERY
-
-Highly rated tracks that have not yet been used.
-
-```text
-PlayCount = 0
-Rating >= 4 stars
-```
-
-## UNASSIGNED
-
-Tracks that currently do not meet any of the rules above.
-
-### Example
-
-```text
-Library Segmentation
-
-CORE:       126
-ROTATION:   84
-DISCOVERY:  61
-UNASSIGNED: 729
-
-Total tracks: 1000
-```
+This makes it easier to identify actively used tracks while separating discovery material and less frequently used music.
 
 ---
 
-# 🎵 M3U8 Playlist Generation
+## Playlist Generation
 
-The segmentation results can automatically become playlists.
+Generate M3U8 playlists from the segmentation engine.
 
 ```powershell
 rekordbox-intelligence playlists collection.xml
 ```
 
-Generated structure:
+Generated files:
 
 ```text
 output/
@@ -259,171 +180,448 @@ output/
 └── DISCOVERY.m3u8
 ```
 
-Example output:
+Audio files are not modified.
 
-```text
-Generated playlists
+---
 
-CORE        126 tracks -> output\CORE.m3u8
-ROTATION     84 tracks -> output\ROTATION.m3u8
-DISCOVERY    61 tracks -> output\DISCOVERY.m3u8
+# Analytics
 
-No Rekordbox database or audio files were modified.
-```
+## Library Analytics
 
-A custom output directory can also be used:
+Analyze how the collection is actually used.
 
 ```powershell
-rekordbox-intelligence playlists collection.xml --output-dir playlists
+rekordbox-intelligence analytics collection.xml
+```
+
+Metrics include:
+
+- library utilization;
+- total DJ plays;
+- average BPM;
+- top tracks;
+- top artists;
+- BPM distribution;
+- rating distribution.
+
+Example:
+
+```powershell
+rekordbox-intelligence analytics collection.xml --top 20
 ```
 
 ---
 
-# 📝 Safe Metadata Correction
+## Analytics Reports
 
-Metadata correction follows a separate, controlled workflow.
+Export analytics to machine-readable formats.
 
-The application does **not automatically rewrite metadata discovered during an audit**.
-
-Corrections must first be provided through a CSV file.
-
-## CSV format
-
-```csv
-track_id,artist,title,location,confidence
-1001,Example Artist,Example Track,C:/Music/example.mp3,HIGH
-1002,Another Artist,Another Track,C:/Music/another.mp3,HIGH
-1003,Maybe Artist,Maybe Track,C:/Music/maybe.mp3,MEDIUM
+```powershell
+rekordbox-intelligence report collection.xml
 ```
 
-Supported confidence levels:
+Reports include JSON and CSV files that can be used in spreadsheets, dashboards or additional analysis.
+
+---
+
+# Rekordbox HISTORY Intelligence
+
+Rekordbox HISTORY playlists can be interpreted as DJ sessions.
+
+## Session Analysis
+
+```powershell
+rekordbox-intelligence history collection.xml
+```
+
+Session metrics include:
+
+- number of tracks;
+- starting BPM;
+- average BPM;
+- ending BPM;
+- minimum BPM;
+- maximum BPM;
+- opening track;
+- closing track.
+
+---
+
+## Cross-session Intelligence
+
+```powershell
+rekordbox-intelligence history-intelligence collection.xml
+```
+
+This analyzes patterns across multiple DJ sessions.
+
+Examples include:
+
+- repeated tracks;
+- frequently used opening tracks;
+- frequently used closing tracks;
+- BPM behavior;
+- transition behavior.
+
+---
+
+## HISTORY Reports
+
+```powershell
+rekordbox-intelligence history-report collection.xml
+```
+
+Generated reports can include:
 
 ```text
-HIGH
-MEDIUM
-LOW
+history_summary.json
+sessions.csv
+repeated_tracks.csv
+openers.csv
+closers.csv
+transitions.csv
 ```
-
-By default, only `HIGH` confidence corrections are processed.
 
 ---
 
-## Metadata Preview
+# Track Classification
 
-Always preview corrections before applying them.
+The project contains an explainable classification engine that can infer DJ-oriented attributes from available track metadata.
+
+Classification dimensions include:
+
+### STYLE
+
+Examples:
+
+- House
+- Tech House
+- Disco / Nu Disco
+- Vocal House
+- Classic House
+- Pop Remix
+
+### ELEMENTS
+
+Examples:
+
+- Vocal
+- Piano
+- Sax
+- Percussion
+- Bassline
+
+### ENERGY
+
+Current ENERGY model:
+
+```text
+BPM < 120        -> Warm
+120 <= BPM < 123 -> Groove
+123 <= BPM < 126 -> Lift
+126 <= BPM < 129 -> Strong
+BPM >= 129       -> Peak
+```
+
+Explicit semantic signals such as `closer`, `last call`, `reset` and `breakdown` can override the BPM model.
+
+### FUNCTION
+
+FUNCTION uses a hierarchical model.
+
+Explicit semantic signals have priority.
+
+Examples:
+
+```text
+opening / opener / intro -> Opener
+bridge                   -> Bridge
+singalong                -> Singalong
+anthem                   -> Anthem
+weapon                   -> Weapon
+rescue                   -> Rescue
+closing / closer         -> Closer
+```
+
+When no explicit signal exists, ENERGY can provide contextual fallback:
+
+```text
+Warm   -> Opener
+Peak   -> Weapon
+Closer -> Closer
+```
+
+---
+
+## Classification Preview
+
+Preview classifications without modifying Rekordbox data.
+
+```powershell
+rekordbox-intelligence classify-preview collection.xml
+```
+
+Filter by confidence:
+
+```powershell
+rekordbox-intelligence classify-preview collection.xml `
+    --minimum-confidence MEDIUM
+```
+
+Limit the output:
+
+```powershell
+rekordbox-intelligence classify-preview collection.xml `
+    --limit 50
+```
+
+---
+
+## Classification CSV Report
+
+```powershell
+rekordbox-intelligence classify-report collection.xml
+```
+
+Default output:
+
+```text
+output/classification/classification.csv
+```
+
+---
+
+# Ground Truth
+
+Classification quality can be measured using manually validated ground-truth datasets.
+
+## Generate a validation template
+
+```powershell
+rekordbox-intelligence ground-truth-template collection.xml `
+    --sample-size 50 `
+    --seed 42
+```
+
+This creates a reproducible random sample that can be classified manually.
+
+---
+
+## Rekordbox Grouping Ground Truth
+
+The project can also convert structured Rekordbox `Grouping` metadata into classification ground truth.
+
+```powershell
+rekordbox-intelligence rekordbox-ground-truth collection.xml
+```
+
+This functionality is intended for collections where Grouping already represents manually validated DJ classifications.
+
+Importantly, **Grouping is used only as validation ground truth and is not used as an input feature by the classifier**.
+
+This prevents classification data leakage.
+
+---
+
+# Classification Benchmark
+
+Compare generated classifications against validated ground truth.
+
+```powershell
+rekordbox-intelligence classify-benchmark `
+    collection.xml `
+    ground_truth.csv
+```
+
+The benchmark reports:
+
+- matched tracks;
+- tracks without ground truth;
+- field accuracy;
+- confidence accuracy;
+- prediction coverage;
+- missing predictions;
+- aggregate mismatch patterns.
+
+Individual mismatches can also be displayed:
+
+```powershell
+rekordbox-intelligence classify-benchmark `
+    collection.xml `
+    ground_truth.csv `
+    --show-track-mismatches
+```
+
+---
+
+## Reproducible Benchmark Reports
+
+Benchmark results can be exported automatically:
+
+```powershell
+rekordbox-intelligence classify-benchmark `
+    collection.xml `
+    ground_truth.csv `
+    --report-dir output/benchmarks
+```
+
+Generated files:
+
+```text
+output/benchmarks/
+├── benchmark_summary.json
+├── energy_mismatches.csv
+└── function_mismatches.csv
+```
+
+This makes benchmark evolution reproducible and easier to review.
+
+---
+
+# Real-library Benchmark
+
+The classification engine was validated against a real Rekordbox collection.
+
+Dataset:
+
+```text
+Library tracks:       996
+Ground-truth tracks:  989
+```
+
+## ENERGY
+
+```text
+Evaluated:            989
+Predictions present:  989
+Missing predictions:    0
+Correct:              937
+
+Coverage:           100.0%
+Accuracy:            94.7%
+```
+
+The ENERGY model originally achieved **77.8% accuracy**.
+
+Analysis of real-library BPM distributions revealed two dominant classification errors:
+
+```text
+Strong -> Peak
+Lift   -> Groove
+```
+
+After recalibrating the BPM boundaries, accuracy increased to:
+
+```text
+77.8% -> 94.7%
+```
+
+while maintaining:
+
+```text
+100% prediction coverage
+```
+
+---
+
+## FUNCTION
+
+Validated FUNCTION labels:
+
+```text
+120
+```
+
+Current result:
+
+```text
+Predictions present:  99
+Correct:              95
+
+Coverage:            82.5%
+Accuracy:            79.2%
+```
+
+The original FUNCTION model produced almost no predictions.
+
+A hierarchical approach using semantic rules and ENERGY fallback increased useful FUNCTION coverage substantially.
+
+---
+
+# AI-Assisted Development
+
+Generative AI was used as a development partner throughout this project.
+
+Rather than treating generated code as automatically correct, the development process followed an iterative workflow:
+
+```text
+Problem definition
+        ↓
+AI-assisted implementation
+        ↓
+Local execution
+        ↓
+Automated tests
+        ↓
+Real-library validation
+        ↓
+Benchmark analysis
+        ↓
+Human review and decision
+```
+
+Classification rules were not accepted solely because they appeared reasonable. They were evaluated against manually validated Rekordbox metadata and benchmarked against real library data.
+
+One ENERGY calibration improved measured accuracy from:
+
+```text
+77.8% -> 94.7%
+```
+
+A proposed additional optimization was deliberately not adopted after analysis indicated a risk of overfitting the validation dataset.
+
+This workflow demonstrates how AI-assisted software development can be combined with testing, domain expertise and engineering judgment.
+
+---
+
+# Metadata Correction Workflow
+
+The toolkit also supports controlled Artist and Title metadata corrections.
+
+## Preview
 
 ```powershell
 rekordbox-intelligence metadata-preview corrections.csv
 ```
 
-Example:
+The preview is a dry run.
 
-```text
-Metadata correction preview
-
-READY:   10
-SKIPPED: 2
-MISSING: 1
-
-[READY] TrackID 1001 | Example Artist - Example Track
-[READY] TrackID 1002 | Another Artist - Another Track
-
-DRY-RUN ONLY
-No audio files were modified.
-```
-
-To include medium-confidence corrections:
-
-```powershell
-rekordbox-intelligence metadata-preview corrections.csv --minimum-confidence MEDIUM
-```
-
-A preview can also ignore filesystem validation:
-
-```powershell
-rekordbox-intelligence metadata-preview corrections.csv --skip-file-check
-```
+No audio files are modified.
 
 ---
 
-# 💾 Metadata Apply
-
-Metadata modification is an explicit operation.
-
-```powershell
-rekordbox-intelligence metadata-apply corrections.csv
-```
-
-Without confirmation, the program blocks the operation:
-
-```text
-SAFETY BLOCK
-
-No files were modified because --yes was not provided.
-```
-
-Real modification requires:
+## Apply
 
 ```powershell
 rekordbox-intelligence metadata-apply corrections.csv --yes
 ```
 
-## Before modifying each MP3
+Before modification, the application creates backups.
 
-The application:
+An execution log is also generated.
 
-1. Validates the correction
-2. Confirms the audio file exists
-3. Reads the existing Artist and Title
-4. Creates a backup of the original file
-5. Updates only Artist and Title
-6. Records old and new values
-7. Generates an execution log
-
-Default backup location:
+Default locations:
 
 ```text
 output/metadata_backups/
-```
-
-Default execution log:
-
-```text
 output/metadata_apply_log.csv
-```
-
-Custom locations can be used:
-
-```powershell
-rekordbox-intelligence metadata-apply corrections.csv `
-    --backup-dir backups `
-    --log logs/metadata.csv `
-    --yes
 ```
 
 ---
 
-# ↩️ Metadata Rollback
+## Rollback
 
-Metadata changes are reversible.
-
-The execution log generated by `metadata-apply` can be used to restore the original files.
-
-```powershell
-rekordbox-intelligence metadata-rollback output/metadata_apply_log.csv
-```
-
-Rollback is also protected.
-
-Without:
-
-```text
---yes
-```
-
-no file is restored.
-
-To perform the rollback:
+Changes can be restored using the execution log.
 
 ```powershell
 rekordbox-intelligence metadata-rollback `
@@ -431,611 +629,227 @@ rekordbox-intelligence metadata-rollback `
     --yes
 ```
 
-## Rollback safety model
-
-Before restoring the original file, the application creates another backup containing the **currently modified version**.
-
-The workflow is therefore:
-
-```text
-Original MP3
-     |
-     | metadata-apply
-     v
-Backup Original
-     +
-Modified MP3
-     |
-     | metadata-rollback
-     v
-Safety Backup of Modified Version
-     +
-Restored Original MP3
-```
-
-This makes the rollback itself reversible.
+Before restoring the original metadata, the currently modified files are preserved in a safety backup.
 
 ---
 
-# 🛡️ Safety Model
+# Windows and Unicode Support
 
-Safety is a central design principle of this project.
+DJ libraries frequently contain international artist names, accented characters and Unicode symbols.
 
-### Read-only operations
+The CLI explicitly configures UTF-8 output streams to avoid legacy Windows encoding failures.
 
-The following operations never modify the Rekordbox database or audio files:
-
-```text
-audit
-duplicates
-segments
-metadata-preview
-```
-
-### Generated output only
-
-```text
-playlists
-```
-
-creates new `.m3u8` files without modifying the source library.
-
-### Protected write operations
-
-```text
-metadata-apply
-metadata-rollback
-```
-
-require explicit:
-
-```text
---yes
-```
-
-before any file operation occurs.
-
-### Additional protections
-
-- Rekordbox databases are never edited directly
-- XML exports are treated as read-only input
-- Duplicate detection never deletes tracks
-- Original MP3 files are backed up before modification
-- Metadata writes currently target only Artist and Title
-- Every metadata operation generates a CSV log
-- Metadata operations can be rolled back
-- Rollback creates an additional safety backup
-- Real Rekordbox XML files are excluded from Git
-- Audio files are excluded from Git
-- Generated output is excluded from Git
-
----
-
-# 🧪 Automated Testing
-
-The project uses `pytest`.
-
-Run all tests:
+This includes redirected PowerShell output such as:
 
 ```powershell
-pytest
+rekordbox-intelligence classify-benchmark `
+    collection.xml `
+    ground_truth.csv `
+    --show-track-mismatches |
+Out-File benchmark.txt -Encoding utf8
 ```
 
-or:
-
-```powershell
-python -m pytest
-```
-
-Current status:
+This prevents failures such as:
 
 ```text
-33 tests passing
-```
-
-The test suite covers:
-
-- XML parsing
-- Invalid XML handling
-- Library auditing
-- Duplicate normalization
-- Duplicate detection
-- Duplicate keep recommendations
-- Rekordbox rating conversion
-- CORE segmentation
-- ROTATION segmentation
-- DISCOVERY segmentation
-- M3U8 generation
-- File URI conversion
-- CLI integration
-- Metadata CSV parsing
-- Confidence filtering
-- Dry-run metadata planning
-- ID3 Artist / Title reading
-- ID3 Artist / Title writing
-- Backup creation
-- Metadata execution logging
-- Apply safety blocking
-- Metadata application
-- Rollback plan loading
-- Original file restoration
-- Rollback safety backup
-- Rollback execution logging
-- Rollback CLI safety blocking
-
-Automated tests use temporary files created by `pytest`.
-
-**Real user audio files are never required by the test suite.**
-
----
-
-# 🏗️ Architecture
-
-```text
-                     Rekordbox
-                         |
-                         |
-                    Export XML
-                         |
-                         v
-                +----------------+
-                |   XML Parser   |
-                +-------+--------+
-                        |
-          +-------------+-------------+
-          |             |             |
-          v             v             v
-     +---------+   +-----------+   +-----------+
-     |  Audit  |   |Duplicates |   | Segments  |
-     +---------+   +-----------+   +-----+-----+
-                                        |
-                                        v
-                                +---------------+
-                                | M3U8 Generator |
-                                +---------------+
-
-
-                 Metadata Corrections CSV
-                         |
-                         v
-                +------------------+
-                | Metadata Preview |
-                +--------+---------+
-                         |
-                         v
-                +------------------+
-                | Safety Validation|
-                +--------+---------+
-                         |
-                         v
-                +------------------+
-                | Original Backup  |
-                +--------+---------+
-                         |
-                         v
-                +------------------+
-                |    ID3 Apply     |
-                +--------+---------+
-                         |
-                         v
-                +------------------+
-                |  Execution Log   |
-                +--------+---------+
-                         |
-                         v
-                +------------------+
-                | Rollback Engine  |
-                +--------+---------+
-                         |
-                         v
-                +------------------+
-                |  Safety Backup   |
-                +------------------+
+UnicodeEncodeError: 'charmap' codec can't encode character
 ```
 
 ---
 
-# 📁 Project Structure
-
-```text
-rekordbox-library-intelligence/
-│
-├── src/
-│   └── rekordbox_library_intelligence/
-│       ├── __init__.py
-│       ├── __main__.py
-│       ├── parser.py
-│       ├── audit.py
-│       ├── duplicates.py
-│       ├── segments.py
-│       ├── playlists.py
-│       ├── metadata.py
-│       ├── metadata_apply.py
-│       ├── metadata_rollback.py
-│       └── cli.py
-│
-├── tests/
-│   ├── test_parser.py
-│   ├── test_audit.py
-│   ├── test_duplicates.py
-│   ├── test_segments.py
-│   ├── test_playlists.py
-│   ├── test_metadata.py
-│   ├── test_metadata_apply.py
-│   ├── test_metadata_rollback.py
-│   └── test_cli.py
-│
-├── examples/
-│   ├── sample_collection.xml
-│   ├── sample_duplicates.xml
-│   └── sample_corrections.csv
-│
-├── docs/
-│
-├── output/
-│   └── .gitkeep
-│
-├── .gitignore
-├── LICENSE
-├── pyproject.toml
-├── requirements.txt
-└── README.md
-```
-
----
-
-# ⚙️ Installation
+# Installation
 
 ## Requirements
 
-- Python 3.11+
-- Git
-- Rekordbox XML export
+```text
+Python >= 3.11
+```
 
 Clone the repository:
 
-```bash
-git clone <repository-url>
+```powershell
+git clone https://github.com/satrohoria/rekordbox-library-intelligence.git
 cd rekordbox-library-intelligence
 ```
 
 Create a virtual environment:
 
-```bash
-python -m venv .venv
+```powershell
+py -m venv .venv
 ```
 
-### Windows
-
-Activate:
+Install the project and development dependencies:
 
 ```powershell
-.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 ```
 
-Install:
+Verify the CLI:
 
 ```powershell
-python -m pip install -e ".[dev]"
-```
-
-### Linux / macOS
-
-Activate:
-
-```bash
-source .venv/bin/activate
-```
-
-Install:
-
-```bash
-python -m pip install -e ".[dev]"
+.\.venv\Scripts\rekordbox-intelligence.exe --help
 ```
 
 ---
 
-# 💻 CLI
+# Development
 
-After installation:
+Run the complete test suite:
 
 ```powershell
-rekordbox-intelligence --help
+.\.venv\Scripts\python.exe -m pytest
 ```
 
-Current commands:
-
-| Command | Purpose |
-|---|---|
-| `audit` | Audit Rekordbox XML |
-| `duplicates` | Find duplicate candidates |
-| `segments` | Build CORE / ROTATION / DISCOVERY |
-| `playlists` | Generate M3U8 playlists |
-| `metadata-preview` | Preview metadata corrections |
-| `metadata-apply` | Apply approved metadata corrections |
-| `metadata-rollback` | Restore previous metadata state |
-
----
-
-# 🧠 Engineering Highlights
-
-Although the project focuses on DJ library management, it also demonstrates general software engineering and automation concepts relevant to infrastructure and operations.
-
-### Python Engineering
-
-- Modular package architecture
-- Dataclasses
-- Type hints
-- Command-line interfaces
-- File processing
-- XML parsing
-- CSV processing
-- URI normalization
-
-### Automation
-
-- Rule-based library segmentation
-- Automated playlist generation
-- Metadata validation pipelines
-- Safe file operations
-- Backup automation
-- Rollback automation
-
-### Data Quality
-
-- Missing metadata detection
-- Duplicate identification
-- Bitrate validation
-- Confidence-based processing
-- Metadata normalization
-
-### Reliability
-
-- Dry-run workflow
-- Explicit destructive-action confirmation
-- Automatic backups
-- Execution logs
-- Recovery procedures
-- Automated tests
-
-### Development Practices
-
-- Git
-- GitHub
-- Incremental feature development
-- Semantic-style commit messages
-- Automated testing with pytest
-- Editable Python packaging
-- Dependency management with `pyproject.toml`
-
----
-
-# 🔐 Privacy
-
-The repository intentionally excludes personal Rekordbox and music data.
-
-The following are ignored:
+Current status:
 
 ```text
-*.xml
-*.m3u
-*.m3u8
-*.edb
-master.db
-master.backup.db
-*.mp3
-*.wav
-*.aif
-*.aiff
-*.flac
-*.m4a
-*.aac
+122 passed
 ```
 
-Only explicitly approved fictitious examples are included.
+Compile an individual module:
 
-This prevents the public repository from exposing:
-
-- Personal music libraries
-- Local filesystem paths
-- DJ histories
-- Private playlists
-- Rekordbox databases
-- Audio files
+```powershell
+.\.venv\Scripts\python.exe -m py_compile `
+    .\src\rekordbox_library_intelligence\classification.py
+```
 
 ---
 
-# 🗺️ Roadmap
-
-## ✅ Completed
-
-### v0.1 — Library Foundation
-
-- Rekordbox XML parser
-- Library audit
-- CLI foundation
-- Automated tests
-
-### v0.2 — Duplicate Intelligence
-
-- Metadata normalization
-- High-confidence duplicate detection
-- Keep recommendations
-- Duplicate CLI
-
-### v0.3 — Library Organization
-
-- CORE segmentation
-- ROTATION segmentation
-- DISCOVERY segmentation
-- Rekordbox rating normalization
-- M3U8 playlist generation
-
-### v0.4 — Metadata Safety Pipeline
-
-- CSV correction import
-- Confidence filtering
-- Metadata preview
-- Dry-run workflow
-- ID3 Artist / Title updates
-- Mandatory original backup
-- Execution logs
-- Explicit `--yes` safety lock
-- Metadata rollback
-- Rollback safety backup
-- Rollback execution logs
-- End-to-end CLI tests
-
----
-
-## 🚧 Planned
-
-### v0.5 — DJ History Analytics
-
-Planned analytics include:
-
-- Most played tracks
-- Most played artists
-- BPM distribution
-- Rating distribution
-- Played vs. unplayed ratio
-- Library utilization
-- Historical set behavior
-
-### v0.6 — Classification Engine
-
-Planned classification model:
+# Project Structure
 
 ```text
-STYLE
-├── House
-├── Disco / Nu Disco
-├── Vocal House
-├── Tech House
-├── Afro House
-├── Pop Remix
-├── Classic House
-└── Brasileiras Remix
-
-ENERGY
-├── Warm
-├── Groove
-├── Lift
-├── Strong
-├── Peak
-├── Reset
-└── Closer
-
-ELEMENTS
-├── Vocal
-├── Instrumental
-├── Piano
-├── Sax
-├── Percussion
-├── Bassline
-└── Acapella
-
-FUNCTION
-├── Opener
-├── Bridge
-├── Singalong
-├── Anthem
-├── Weapon
-├── Rescue
-└── Closer
+rekordbox-library-intelligence/
+│
+├── examples/
+├── output/
+├── src/
+│   └── rekordbox_library_intelligence/
+│       ├── analytics.py
+│       ├── audit.py
+│       ├── benchmark_reports.py
+│       ├── classification.py
+│       ├── classification_benchmark.py
+│       ├── classification_diagnostics.py
+│       ├── classification_mismatches.py
+│       ├── classification_reports.py
+│       ├── cli.py
+│       ├── console.py
+│       ├── duplicates.py
+│       ├── ground_truth_template.py
+│       ├── history.py
+│       ├── history_intelligence.py
+│       ├── history_reports.py
+│       ├── metadata.py
+│       ├── metadata_apply.py
+│       ├── metadata_rollback.py
+│       ├── parser.py
+│       ├── playlists.py
+│       ├── rekordbox_ground_truth.py
+│       ├── rekordbox_playlists.py
+│       ├── reports.py
+│       └── segments.py
+│
+├── tests/
+├── README.md
+├── LICENSE
+├── pyproject.toml
+└── requirements.txt
 ```
-
-Planned confidence model:
-
-```text
-HIGH
-MEDIUM
-LOW
-REVIEW
-```
-
-### v0.7 — Advanced Automation
-
-Possible experiments:
-
-- Playlist cleanup automation
-- Rekordbox UI automation
-- Additional metadata quality rules
-- JSON reports
-- CSV analytics reports
-- Configurable YAML rules
-- Improved duplicate similarity scoring
 
 ---
 
-# 🧰 Technology Stack
+# Safety Model
 
-| Technology | Usage |
-|---|---|
-| **Python** | Core application |
-| **ElementTree** | Rekordbox XML parsing |
-| **Mutagen** | ID3 metadata processing |
-| **CSV** | Correction and execution logs |
-| **M3U8** | Playlist generation |
-| **argparse** | Command-line interface |
-| **dataclasses** | Data models |
-| **pytest** | Automated testing |
-| **setuptools** | Python package build |
-| **Git** | Version control |
-| **GitHub** | Source repository and portfolio |
+Commands can be divided into three categories.
+
+| Category | Examples | Modifies audio files |
+|---|---|---|
+| Analysis | audit, analytics, history, classification | No |
+| Reports | report, classify-report, benchmark reports | No |
+| Metadata | metadata-apply, metadata-rollback | Yes, with backup |
+
+The project never modifies the Rekordbox database directly.
 
 ---
 
-# 💡 Project Philosophy
+# Testing
 
-The project follows a simple principle:
+The project currently contains **122 automated tests** covering areas including:
 
-> **Automate analysis aggressively. Automate destructive actions conservatively.**
-
-The software can freely analyze, classify and recommend.
-
-Operations that modify files require:
-
-```text
-validation
-    +
-preview
-    +
-explicit confirmation
-    +
-backup
-    +
-logging
-    +
-rollback
-```
-
-This design keeps automation useful without sacrificing recoverability.
+- XML parsing;
+- audits;
+- duplicate detection;
+- segmentation;
+- playlist generation;
+- analytics;
+- HISTORY analysis;
+- classification;
+- classification benchmarks;
+- classification diagnostics;
+- ground truth generation;
+- metadata modification;
+- rollback;
+- report generation;
+- Windows UTF-8 console behavior;
+- CLI integration.
 
 ---
 
-# Disclaimer
+# Roadmap
 
-Rekordbox Library Intelligence is an independent open-source project.
+The current `v0.1.0` focuses on reliable library intelligence and reproducible analysis.
 
-It is not affiliated with, endorsed by, or sponsored by AlphaTheta Corporation or Pioneer DJ.
+Potential future work includes:
 
-Rekordbox is a trademark of its respective owner.
+- independent validation datasets;
+- classification calibration experiments;
+- additional DJ transition analytics;
+- visualization dashboards;
+- richer playlist recommendation models;
+- support for additional library export formats.
+
+Experimental classification rules should be validated on independent datasets before being incorporated into the production classifier.
+
+---
+
+# Privacy
+
+Real Rekordbox collections may contain private file paths, listening history and personal library metadata.
+
+Real library exports and validation datasets should **not** be committed to the repository.
+
+Example files in this repository use synthetic data.
+
+---
+
+# Acknowledgments
+
+This project was developed by **Lenilson Nunes** with the assistance of generative AI tools used for collaborative coding, debugging, testing and documentation.
+
+Project requirements, DJ/Rekordbox domain decisions, validation, execution and final implementation decisions were human-led.
 
 ---
 
 # License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the MIT License.
 
-See the `LICENSE` file for details.
+See [LICENSE](LICENSE) for details.
 
 ---
 
-<div align="center">
+## Project status
 
-### 🎧 Built with Python, automation and a real-world DJ workflow.
+**v0.1.0 — Release Candidate**
 
-**Rekordbox Library Intelligence**
+```text
+ENERGY accuracy:   94.7%
+ENERGY coverage:  100.0%
 
-</div>
+FUNCTION accuracy: 79.2%
+FUNCTION coverage: 82.5%
+
+Automated tests:   122 passing
+```
+
+The current development focus is release hardening, documentation and repository cleanup.

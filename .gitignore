@@ -1,43 +1,113 @@
+# ============================================================
+# Rekordbox Library Intelligence
+# ============================================================
+
+# ------------------------------------------------------------
 # Python
+# ------------------------------------------------------------
+
 __pycache__/
 *.py[cod]
-*.egg-info/
-dist/
-build/
+*$py.class
+*.so
+
+# Virtual environments
 .venv/
 venv/
+env/
+ENV/
 
-# Editors / OS
+# Packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+wheels/
+
+# ------------------------------------------------------------
+# Testing / coverage
+# ------------------------------------------------------------
+
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.tox/
+.nox/
+
+# ------------------------------------------------------------
+# IDE / editor
+# ------------------------------------------------------------
+
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+*.bak
+
+# ------------------------------------------------------------
+# OS files
+# ------------------------------------------------------------
+
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Local secrets
+# ------------------------------------------------------------
+# Runtime / generated output
+# ------------------------------------------------------------
+
+output/
+
+*.log
+
+# ------------------------------------------------------------
+# Rekordbox private data
+# ------------------------------------------------------------
+
+Rekordbox-Private/
+rekordbox-private/
+private/
+_private/
+
+# Real Rekordbox exports
+collection.xml
+Collection.xml
+
+# Ground truth generated from a real/private library
+rekordbox_ground_truth.csv
+ground_truth.csv
+
+# ------------------------------------------------------------
+# Metadata modification artifacts
+# ------------------------------------------------------------
+
+metadata_backups/
+rollback_safety_backups/
+metadata_apply_log.csv
+metadata_rollback_log.csv
+
+# ------------------------------------------------------------
+# Temporary analysis files
+# ------------------------------------------------------------
+
+peak_analysis.txt
+unicode_test.txt
+benchmark.txt
+
+# ------------------------------------------------------------
+# Environment / secrets
+# ------------------------------------------------------------
+
 .env
+.env.*
+!.env.example
 
-# Rekordbox personal data
-*.edb
-master.db
-master.backup.db
-*.xml
-*.m3u
-*.m3u8
+# ------------------------------------------------------------
+# Keep project examples
+# ------------------------------------------------------------
 
-# Audio
-*.mp3
-*.wav
-*.aif
-*.aiff
-*.flac
-*.m4a
-*.aac
-
-# Generated output
-output/*
-!output/.gitkeep
-
-# Public / fictitious examples
-!examples/sample_collection.xml
-!examples/sample_duplicates.xml
-!examples/sample_history.xml
+!examples/
+!examples/**
