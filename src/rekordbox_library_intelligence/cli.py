@@ -31,6 +31,9 @@ from .classification_mismatches import (
 from .classification_reports import (
     write_classification_csv,
 )
+from .console import (
+    configure_console_encoding,
+)
 from .duplicates import find_duplicates
 from .ground_truth_template import (
     write_ground_truth_template,
@@ -175,6 +178,8 @@ def format_segments(segments) -> str:
 
 
 def main():
+    configure_console_encoding()
+
     parser = argparse.ArgumentParser(
         prog="rekordbox-intelligence",
         description=(
