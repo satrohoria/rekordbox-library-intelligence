@@ -25,6 +25,9 @@ from .classification_reports import (
     write_classification_csv,
 )
 from .duplicates import find_duplicates
+from .ground_truth_template import (
+    write_ground_truth_template,
+)
 from .history import (
     find_history_sessions,
     format_history_sessions,
@@ -501,6 +504,53 @@ def main():
     )
 
     # ---------------------------------------------------------
+    # GROUND TRUTH TEMPLATE
+    # ---------------------------------------------------------
+    ground_truth_p = sub.add_parser(
+        "ground-truth-template",
+        help=(
+            "Generate a reproducible CSV sample "
+            "for manual classification validation."
+        ),
+    )
+
+    ground_truth_p.add_argument(
+        "xml",
+        help="Rekordbox XML export.",
+    )
+
+    ground_truth_p.add_argument(
+        "--output",
+        default=(
+            "output/ground_truth/"
+            "ground_truth_template.csv"
+        ),
+        help=(
+            "Destination CSV template."
+        ),
+    )
+
+    ground_truth_p.add_argument(
+        "--sample-size",
+        type=int,
+        default=50,
+        help=(
+            "Number of tracks to include "
+            "in the sample."
+        ),
+    )
+
+    ground_truth_p.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help=(
+            "Random seed used to make the "
+            "sample reproducible."
+        ),
+    )
+
+    # ---------------------------------------------------------
     # METADATA PREVIEW
     # ---------------------------------------------------------
     metadata_preview_p = sub.add_parser(
@@ -831,9 +881,11 @@ def main():
             tracks,
         )
 
-        intelligence = analyze_history_intelligence(
-            sessions,
-            top_limit=args.top,
+        intelligence = (
+            analyze_history_intelligence(
+                sessions,
+                top_limit=args.top,
+            )
         )
 
         print(
@@ -859,9 +911,11 @@ def main():
             tracks,
         )
 
-        intelligence = analyze_history_intelligence(
-            sessions,
-            top_limit=args.top,
+        intelligence = (
+            analyze_history_intelligence(
+                sessions,
+                top_limit=args.top,
+            )
         )
 
         generated = generate_history_reports(
@@ -989,10 +1043,64 @@ def main():
         )
 
         print("")
+
         print(
             format_classification_mismatches(
                 mismatches
             )
+        )
+
+    # ---------------------------------------------------------
+    # GROUND TRUTH TEMPLATE
+    # ---------------------------------------------------------
+    elif args.command == "ground-truth-template":
+        tracks = parse_collection(
+            args.xml
+        )
+
+        destination = write_ground_truth_template(
+            tracks,
+            args.output,
+            sample_size=args.sample_size,
+            seed=args.seed,
+        )
+
+        selected_count = min(
+            args.sample_size,
+            len(tracks),
+        )
+
+        print(
+            "Rekordbox Library Intelligence"
+        )
+        print("=" * 32)
+        print("Ground Truth Template")
+        print("")
+        print(
+            f"Tracks available: "
+            f"{len(tracks)}"
+        )
+        print(
+            f"Tracks selected:  "
+            f"{selected_count}"
+        )
+        print(
+            f"Random seed:      "
+            f"{args.seed}"
+        )
+        print("")
+        print(
+            f"CSV: {destination}"
+        )
+        print("")
+        print(
+            "Fill STYLE, ELEMENTS, ENERGY and "
+            "FUNCTION manually before benchmarking."
+        )
+        print("")
+        print(
+            "No Rekordbox data or audio files "
+            "were modified."
         )
 
     # ---------------------------------------------------------

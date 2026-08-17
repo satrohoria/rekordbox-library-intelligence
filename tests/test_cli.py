@@ -922,3 +922,71 @@ def test_cli_classify_benchmark_shows_mismatches():
         "Predicted: -"
         in result.stdout
     )
+def test_cli_ground_truth_template(
+    tmp_path,
+):
+    output_file = (
+        tmp_path
+        / "ground_truth.csv"
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "ground-truth-template",
+            str(SAMPLE_XML),
+            "--output",
+            str(output_file),
+            "--sample-size",
+            "5",
+            "--seed",
+            "42",
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+
+    assert (
+        "Ground Truth Template"
+        in result.stdout
+    )
+
+    assert (
+        "Tracks available: 8"
+        in result.stdout
+    )
+
+    assert (
+        "Tracks selected:  5"
+        in result.stdout
+    )
+
+    assert (
+        "Random seed:      42"
+        in result.stdout
+    )
+
+    assert output_file.exists()
+
+    content = output_file.read_text(
+        encoding="utf-8-sig"
+    )
+
+    assert "track_id" in content
+    assert "artist" in content
+    assert "title" in content
+    assert "style" in content
+    assert "elements" in content
+    assert "energy" in content
+    assert "function" in content
+
+    assert (
+        "No Rekordbox data or audio files "
+        "were modified."
+        in result.stdout
+    )
