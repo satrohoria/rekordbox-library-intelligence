@@ -172,7 +172,7 @@ def classify_energy(
 ) -> tuple[str | None, str | None]:
     text = _combined_text(track)
 
-    # Explicit semantic clues override BPM.
+    # Explicit semantic cues override BPM.
     if any(
         keyword in text
         for keyword in (
@@ -209,7 +209,7 @@ def classify_energy(
             f"BPM {bpm:.1f}",
         )
 
-    if bpm < 124:
+    if bpm < 123:
         return (
             "Groove",
             f"BPM {bpm:.1f}",
@@ -221,7 +221,7 @@ def classify_energy(
             f"BPM {bpm:.1f}",
         )
 
-    if bpm < 128:
+    if bpm < 129:
         return (
             "Strong",
             f"BPM {bpm:.1f}",
@@ -231,7 +231,6 @@ def classify_energy(
         "Peak",
         f"BPM {bpm:.1f}",
     )
-
 
 def classify_function(
     track: Track,

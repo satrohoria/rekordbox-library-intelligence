@@ -5,10 +5,10 @@
     <TRACK TrackID="1001" Name="Midnight Avenue" Artist="Nova City" Genre="House" AverageBpm="124.00" BitRate="320" Rating="204" PlayCount="4" Location="file://localhost/C:/Music/midnight_avenue.mp3"/>
     <TRACK TrackID="1002" Name="Neon Hearts" Artist="Silver Echo" Genre="Vocal House" AverageBpm="126.00" BitRate="320" Rating="255" PlayCount="6" Location="file://localhost/C:/Music/neon_hearts.mp3"/>
     <TRACK TrackID="1003" Name="After Hours" Artist="Velvet Transit" Genre="Nu Disco" AverageBpm="122.00" BitRate="320" Rating="153" PlayCount="2" Location="file://localhost/C:/Music/after_hours.mp3"/>
-    <TRACK TrackID="1004" Name="Basement Signal" Artist="Metro Pulse" Genre="Tech House" AverageBpm="128.00" BitRate="128" Rating="102" PlayCount="1" Location="file://localhost/C:/Music/basement_signal.mp3"/>
+    <TRACK TrackID="1004" Name="Basement Signal" Artist="Metro Pulse" Genre="Tech House" AverageBpm="129.00" BitRate="128" Rating="102" PlayCount="1" Location="file://localhost/C:/Music/basement_signal.mp3"/>
     <TRACK TrackID="1005" Name="Sunday Lights" Artist="Coastal Drive" Genre="House" AverageBpm="125.00" BitRate="192" Rating="204" PlayCount="3" Location="file://localhost/C:/Music/sunday_lights.mp3"/>
     <TRACK TrackID="1006" Name="Electric Memory" Artist="" Genre="Pop Remix" AverageBpm="127.00" BitRate="320" Rating="153" PlayCount="0" Location="file://localhost/C:/Music/electric_memory.mp3"/>
     <TRACK TrackID="1007" Name="Golden Room" Artist="Night Assembly" Genre="Disco" BitRate="320" Rating="204" PlayCount="3" Location="file://localhost/C:/Music/golden_room.mp3"/>
-    <TRACK TrackID="1008" Name="Last Train Home" Artist="Lunar Club" Genre="House" AverageBpm="123.00" BitRate="320" Rating="255" PlayCount="0" Location="file://localhost/C:/Music/last_train_home.mp3"/>
+    <TRACK TrackID="1008" Name="Last Train Home" Artist="Lunar Club" Genre="House" AverageBpm="122.00" BitRate="320" Rating="255" PlayCount="0" Location="file://localhost/C:/Music/last_train_home.mp3"/>
   </COLLECTION>
 </DJ_PLAYLISTS>

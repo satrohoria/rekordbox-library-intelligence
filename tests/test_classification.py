@@ -1,4 +1,5 @@
 from rekordbox_library_intelligence.classification import (
+    classify_energy,
     classify_collection,
     classify_track,
     filter_classifications,
@@ -124,7 +125,7 @@ def test_energy_buckets():
         make_track(
             5,
             "Peak",
-            bpm=128,
+            bpm=129,
         )
     )
 
@@ -168,7 +169,7 @@ def test_peak_weapon_inference():
         4,
         "Main Floor Tool",
         genre="House",
-        bpm=128,
+        bpm=129,
         play_count=5,
         rating=204,
     )
@@ -344,3 +345,34 @@ def test_format_classification_preview():
         "were modified."
         in output
     )
+def test_energy_calibrated_bpm_boundaries():
+    cases = [
+        (119.9, "Warm"),
+        (120.0, "Groove"),
+        (122.9, "Groove"),
+        (123.0, "Lift"),
+        (125.9, "Lift"),
+        (126.0, "Strong"),
+        (128.9, "Strong"),
+        (129.0, "Peak"),
+    ]
+
+    for bpm, expected in cases:
+        track = Track(
+            track_id=9999,
+            title="Calibration Track",
+            artist="Calibration Artist",
+            bpm=bpm,
+            bitrate=320,
+            play_count=0,
+            rating=0,
+            location="",
+            genre="House",
+        )
+
+        energy, reason = classify_energy(
+            track
+        )
+
+        assert energy == expected
+        assert reason == f"BPM {bpm:.1f}"
