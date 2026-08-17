@@ -242,6 +242,7 @@ def classify_function(
 ]:
     text = _combined_text(track)
 
+    # Explicit semantic cues have highest priority.
     direct_rules = [
         (
             ("opening", "opener", "intro"),
@@ -284,6 +285,52 @@ def classify_function(
                 True,
             )
 
+    # Strong usage evidence for a proven peak-time weapon.
+    stars = rating_to_stars(
+        track.rating
+    )
+
+    if (
+        energy == "Peak"
+        and track.play_count >= 2
+        and stars >= 4
+    ):
+        return (
+            "Weapon",
+            (
+                "Peak energy + repeated DJ use "
+                "+ high rating"
+            ),
+            False,
+        )
+
+    # Contextual FUNCTION inference from ENERGY.
+    #
+    # ENERGY is derived independently from BPM and
+    # semantic metadata. Grouping is deliberately not
+    # used here because it is reserved for ground truth.
+    if energy == "Peak":
+        return (
+            "Weapon",
+            "Peak energy suggests Weapon",
+            False,
+        )
+
+    if energy == "Warm":
+        return (
+            "Opener",
+            "Warm energy suggests Opener",
+            False,
+        )
+
+    if energy == "Closer":
+        return (
+            "Closer",
+            "Closer energy suggests Closer",
+            False,
+        )
+
+    return None, None, False
     # Conservative usage-based inference.
     stars = rating_to_stars(
         track.rating

@@ -1,4 +1,5 @@
 from rekordbox_library_intelligence.classification import (
+    classify_function,
     classify_energy,
     classify_collection,
     classify_track,
@@ -376,3 +377,85 @@ def test_energy_calibrated_bpm_boundaries():
 
         assert energy == expected
         assert reason == f"BPM {bpm:.1f}"
+def test_function_energy_fallback():
+    peak_track = make_track(
+        9001,
+        "Regular Club Track",
+        genre="House",
+        bpm=129,
+        play_count=0,
+        rating=0,
+    )
+
+    warm_track = make_track(
+        9002,
+        "Early Evening Track",
+        genre="House",
+        bpm=118,
+        play_count=0,
+        rating=0,
+    )
+
+    strong_track = make_track(
+        9003,
+        "Regular Strong Track",
+        genre="House",
+        bpm=127,
+        play_count=0,
+        rating=0,
+    )
+
+    peak_function = classify_function(
+        peak_track,
+        "Peak",
+    )
+
+    warm_function = classify_function(
+        warm_track,
+        "Warm",
+    )
+
+    strong_function = classify_function(
+        strong_track,
+        "Strong",
+    )
+
+    assert peak_function == (
+        "Weapon",
+        "Peak energy suggests Weapon",
+        False,
+    )
+
+    assert warm_function == (
+        "Opener",
+        "Warm energy suggests Opener",
+        False,
+    )
+
+    assert strong_function == (
+        None,
+        None,
+        False,
+    )
+
+
+def test_direct_function_overrides_energy_fallback():
+    track = make_track(
+        9004,
+        "Midnight Bridge Tool",
+        genre="House",
+        bpm=129,
+        play_count=0,
+        rating=0,
+    )
+
+    function = classify_function(
+        track,
+        "Peak",
+    )
+
+    assert function == (
+        "Bridge",
+        "keyword suggests Bridge",
+        True,
+    )
