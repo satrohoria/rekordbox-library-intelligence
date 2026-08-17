@@ -860,3 +860,65 @@ def test_cli_classify_benchmark():
     assert "ELEMENTS:" in result.stdout
     assert "ENERGY:" in result.stdout
     assert "FUNCTION:" in result.stdout
+def test_cli_classify_benchmark_shows_mismatches():
+    ground_truth = (
+        PROJECT_ROOT
+        / "examples"
+        / "sample_classification_ground_truth.csv"
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "classify-benchmark",
+            str(SAMPLE_XML),
+            str(ground_truth),
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+
+    assert (
+        "Classification Benchmark"
+        in result.stdout
+    )
+
+    assert (
+        "Classification Mismatches"
+        in result.stdout
+    )
+
+    assert (
+        "Tracks with mismatches: 1"
+        in result.stdout
+    )
+
+    assert (
+        "TrackID 1007"
+        in result.stdout
+    )
+
+    assert (
+        "Night Assembly - Golden Room"
+        in result.stdout
+    )
+
+    assert (
+        "Confidence: LOW"
+        in result.stdout
+    )
+
+    assert (
+        "Expected:  Low"
+        in result.stdout
+    )
+
+    assert (
+        "Predicted: -"
+        in result.stdout
+    )

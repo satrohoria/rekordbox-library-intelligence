@@ -17,6 +17,10 @@ from .classification_benchmark import (
     format_classification_benchmark,
     load_ground_truth,
 )
+from .classification_mismatches import (
+    find_classification_mismatches,
+    format_classification_mismatches,
+)
 from .classification_reports import (
     write_classification_csv,
 )
@@ -53,8 +57,12 @@ from .playlists import (
 from .rekordbox_playlists import (
     parse_playlists,
 )
-from .reports import generate_reports
-from .segments import segment_tracks
+from .reports import (
+    generate_reports,
+)
+from .segments import (
+    segment_tracks,
+)
 
 
 def format_duplicates(duplicates) -> str:
@@ -967,9 +975,23 @@ def main():
             ground_truth,
         )
 
+        mismatches = (
+            find_classification_mismatches(
+                suggestions,
+                ground_truth,
+            )
+        )
+
         print(
             format_classification_benchmark(
                 benchmark
+            )
+        )
+
+        print("")
+        print(
+            format_classification_mismatches(
+                mismatches
             )
         )
 
@@ -1018,7 +1040,9 @@ def main():
             for item in plan
         )
 
-        blocked = len(plan) - ready
+        blocked = (
+            len(plan) - ready
+        )
 
         print(
             "Rekordbox Library Intelligence"
@@ -1034,11 +1058,11 @@ def main():
         )
         print("")
         print(
-            f"Backup directory: "
+            "Backup directory: "
             f"{args.backup_dir}"
         )
         print(
-            f"Execution log:    "
+            "Execution log:    "
             f"{args.log}"
         )
         print("")
@@ -1115,20 +1139,26 @@ def main():
             "Rekordbox Library Intelligence"
         )
         print("=" * 32)
-        print("Metadata Rollback")
+        print(
+            "Metadata Rollback"
+        )
         print("")
+
         print(
             "Eligible files for rollback: "
             f"{len(plan)}"
         )
+
         print(
             "Safety backup directory: "
             f"{args.safety_backup_dir}"
         )
+
         print(
             "Rollback log:            "
             f"{args.log}"
         )
+
         print("")
 
         if not plan:
