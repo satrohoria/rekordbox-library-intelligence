@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 from .analytics import (
     calculate_library_analytics,
@@ -75,8 +76,22 @@ from .reports import (
 from .segments import (
     segment_tracks,
 )
+def main():
+    configure_console_encoding()
 
+    parser = argparse.ArgumentParser(
+def configure_console_encoding():
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(
+            encoding="utf-8",
+            errors="replace",
+        )
 
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(
+            encoding="utf-8",
+            errors="replace",
+        )
 def format_duplicates(duplicates) -> str:
     lines = [
         "Rekordbox Library Intelligence",
