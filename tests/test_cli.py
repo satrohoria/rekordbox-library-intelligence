@@ -1045,3 +1045,54 @@ def test_cli_classify_benchmark_shows_diagnostics():
         "TrackID 1007"
         not in result.stdout
     )
+def test_cli_classify_benchmark_generates_reports(
+    tmp_path,
+):
+    ground_truth = (
+        PROJECT_ROOT
+        / "examples"
+        / "sample_classification_ground_truth.csv"
+    )
+
+    report_dir = (
+        tmp_path
+        / "benchmark_reports"
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "rekordbox_library_intelligence",
+            "classify-benchmark",
+            str(SAMPLE_XML),
+            str(ground_truth),
+            "--report-dir",
+            str(report_dir),
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+
+    assert (
+        "Benchmark Reports"
+        in result.stdout
+    )
+
+    assert (
+        report_dir
+        / "benchmark_summary.json"
+    ).exists()
+
+    assert (
+        report_dir
+        / "energy_mismatches.csv"
+    ).exists()
+
+    assert (
+        report_dir
+        / "function_mismatches.csv"
+    ).exists()

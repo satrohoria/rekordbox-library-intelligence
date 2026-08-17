@@ -1,5 +1,4 @@
 import argparse
-import sys
 
 from .analytics import (
     calculate_library_analytics,
@@ -8,6 +7,9 @@ from .analytics import (
 from .audit import (
     audit_tracks,
     format_audit,
+)
+from .benchmark_reports import (
+    generate_benchmark_reports,
 )
 from .classification import (
     classify_collection,
@@ -76,22 +78,8 @@ from .reports import (
 from .segments import (
     segment_tracks,
 )
-def main():
-    configure_console_encoding()
 
-    parser = argparse.ArgumentParser(
-def configure_console_encoding():
-    if hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(
-            encoding="utf-8",
-            errors="replace",
-        )
 
-    if hasattr(sys.stderr, "reconfigure"):
-        sys.stderr.reconfigure(
-            encoding="utf-8",
-            errors="replace",
-        )
 def format_duplicates(duplicates) -> str:
     lines = [
         "Rekordbox Library Intelligence",
@@ -474,6 +462,16 @@ def main():
         help=(
             "Maximum number of individual mismatch "
             "tracks to display."
+        ),
+    )
+
+    classify_benchmark_p.add_argument(
+        "--report-dir",
+        default=None,
+        metavar="DIR",
+        help=(
+            "Generate reproducible benchmark JSON "
+            "and CSV reports in this directory."
         ),
     )
 
@@ -996,6 +994,25 @@ def main():
                     "Additional mismatch tracks "
                     "not displayed: "
                     f"{len(mismatches) - len(selected)}"
+                )
+
+        if args.report_dir:
+            generated = generate_benchmark_reports(
+                diagnostics,
+                args.report_dir,
+                dataset_tracks=len(tracks),
+                ground_truth_tracks=len(
+                    ground_truth
+                ),
+            )
+
+            print("")
+            print("Benchmark Reports")
+            print("=" * 17)
+
+            for name, path in generated.items():
+                print(
+                    f"{name:20s} -> {path}"
                 )
 
     # GROUND TRUTH TEMPLATE
